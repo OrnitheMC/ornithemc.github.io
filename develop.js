@@ -181,6 +181,7 @@
             possibleVersions = minecraftStableVersions;
         }
         updateVersionList();
+        updateOrnitheDependencies();
     })
 
     function updateVersionList() {
