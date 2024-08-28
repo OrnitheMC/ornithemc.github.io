@@ -1,0 +1,93 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Mappings and mod loading tools for legacy Minecraft versions"
+    />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="bg-ornithe-bg text-ornithe-text font-mono">
+    <div class="flex flex-col">
+      <nav class="w-full border-b flex flex-row justify-center">
+        <div
+          class="w-full max-w-[72rem] p-4 flex flex-row flex-wrap items-center gap-4 justify-between"
+        >
+          <div class="flex flex-row flex-wrap gap-4 items-center">
+            <a class="w-fit" href="/"><h1>OrnitheMC</h1></a>
+            &bull;
+            <a class="w-fit" href="/develop">Develop</a>
+            &bull;
+            <a class="w-fit" href="https://discord.gg/JbRbRf62pn">Discord</a>
+            &bull;
+            <a class="w-fit" href="https://github.com/OrnitheMC">Github</a>
+          </div>
+          <div
+            id="themeSwitcher"
+            onclick="changeTheme()"
+            class="w-8 h-8 flex flex-col items-center justify-center rounded-full aspect-square transition cursor-pointer hover:bg-[#00000020]"
+          >
+            🌙
+          </div>
+        </div>
+      </nav>
+      <main class="flex flex-row justify-center w-full">
+        <div class="w-full max-w-[72rem] p-4">
+          <slot />
+        </div>
+      </main>
+    </div>
+  </body>
+  <script is:inline>
+    let theme = (() => {
+      if (
+        typeof localStorage !== "undefined" &&
+        localStorage.getItem("theme")
+      ) {
+        return localStorage.getItem("theme");
+      }
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        return "dark";
+      }
+      return "light";
+    })();
+
+    const themeSwitcher = document.getElementById("themeSwitcher");
+
+    if (theme === "light") {
+      document.documentElement.classList.remove("dark");
+      themeSwitcher.textContent = "🌙";
+    } else {
+      document.documentElement.classList.add("dark");
+      themeSwitcher.textContent = "☀️";
+    }
+    window.localStorage.setItem("theme", theme);
+
+    function changeTheme() {
+      if (theme === "light") {
+        theme = "dark";
+        document.documentElement.classList.add("dark");
+        themeSwitcher.textContent = "☀️";
+      } else {
+        theme = "light";
+        document.documentElement.classList.remove("dark");
+        themeSwitcher.textContent = "🌙";
+      }
+      window.localStorage.setItem("theme", theme);
+    }
+  </script>
+</html>
