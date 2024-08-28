@@ -14,6 +14,7 @@ export default {
       },
       colors: {
         "ornithe-bg": "var(--bg-ornithe)",
+        "ornithe-transparent-bg": "var(--bg-o-transparent)",
         "ornithe-input-bg": "var(--bg-input)",
         "ornithe-button-bg": "var(--bg-button)",
         "ornithe-text": "var(--text-ornithe)",

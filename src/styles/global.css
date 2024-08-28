@@ -19,12 +19,14 @@
 @layer base {
   :root {
     --bg-ornithe: #ffffff;
+    --bg-o-transparent: #00000020;
     --bg-input: #e5e5e5;
     --bg-button: #93c5fd;
     --text-ornithe: #000000;
   }
   :root[class~="dark"] {
     --bg-ornithe: #000000;
+    --bg-o-transparent: #ffffff20;
     --bg-input: #171717;
     --bg-button: #172554;
     --text-ornithe: #ffffff;
