@@ -25,9 +25,11 @@ const { title } = Astro.props;
     <div class="flex flex-col">
       <nav class="w-full border-b flex flex-row justify-center">
         <div
-          class="w-full max-w-[72rem] p-4 flex flex-row flex-wrap items-center gap-4 justify-between"
+          class="w-full max-w-[72rem] p-4 flex flex-row flex-wrap items-center gap-4 justify-center sm:justify-between"
         >
-          <div class="flex flex-row flex-wrap gap-4 items-center">
+          <div
+            class="flex flex-row flex-wrap gap-4 items-center justify-center sm:justify-normal"
+          >
             <a class="w-fit" href="/"><h1>OrnitheMC</h1></a>
             &bull;
             <a class="w-fit" href="/develop">Develop</a>
