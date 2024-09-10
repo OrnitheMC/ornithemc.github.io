@@ -24,7 +24,5 @@ pnpm-debug.log*
 .idea/
 
 # visual studio code
-.vscode/
-
-# develepment stuff
-legacy/
+.vscode/*
+.dev/*
