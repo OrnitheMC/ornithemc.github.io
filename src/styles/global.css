@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+
+@font-face {
+  font-family: JetBrainsMono;
+  src:
+    url(https://www.jetbrains.com/lp/mono/static/JetBrainsMono-Regular-8647cf342b4c41c73cf6215c97096914.woff2)
+      format("woff2"),
+    url(https://www.jetbrains.com/lp/mono/static/JetBrainsMono-Regular-62b17ba2b3cedb4965de1f195d7bdd4c.woff)
+      format("woff"),
+    url(https://www.jetbrains.com/lp/mono/static/JetBrainsMono-Regular-1cf6a7cc57276e56bd6b6149bc8f4e8a.woff)
+      format("woff"),
+    url(https://www.jetbrains.com/lp/mono/static/JetBrainsMono-Regular-a7151c5349c1aa20beefb3c5430c3a79.ttf)
+      format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@layer base {
+  :root {
+    --bg-ornithe: #ffffff;
+    --bg-o-transparent: #00000020;
+    --bg-input: #e5e5e5;
+    --bg-button: #93c5fd;
+    --text-ornithe: #000000;
+  }
+  :root[class~="dark"] {
+    --bg-ornithe: #000000;
+    --bg-o-transparent: #ffffff20;
+    --bg-input: #171717;
+    --bg-button: #172554;
+    --text-ornithe: #ffffff;
+  }
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+h3 {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+a {
+  text-decoration: underline;
+}
+
+code {
+  @apply bg-ornithe-input-bg p-1;
+}
+code[class~="dark"] {
+  @apply bg-ornithe-input-bg p-1;
+}
+
+fieldset {
+  @apply flex flex-row items-center gap-2;
+}
+
+input {
+  @apply text-ornithe-text bg-ornithe-input-bg border-none p-2 w-fit;
+}
+input[class~="dark"] {
+  @apply text-ornithe-text bg-ornithe-input-bg border-none p-2 w-fit;
+}
+
+/*If someone could get a tailwind.css file working I'd be grateful. -worldwidepixel*/
+
+@tailwind utilities;

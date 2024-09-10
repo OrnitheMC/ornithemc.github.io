@@ -1,0 +1,12 @@
+---
+interface Props {
+  title: string;
+  href: string;
+}
+
+const { href, title } = Astro.props;
+---
+
+<a class="no-underline hover:underline" href={href}>
+  <div class="bg-ornithe-button-bg w-fit p-2 px-4">{title}</div>
+</a>

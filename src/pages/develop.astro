@@ -1,0 +1,49 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<script src="/develop.js" defer></script>
+
+<Layout title="Develop - OrnitheMC">
+  <main class="flex flex-col gap-4">
+    <!-- Familiar, eh? -wwp -->
+    <h1>Develop</h1>
+    <h2>Getting started</h2>
+    <p>
+      If you are updating the Loom or Ploceus version in <code
+        >build.gradle</code
+      > file, make sure their version match (example, Ploceus of version <code
+        >1.5-SNAPSHOT</code
+      > needs Loom to be of version <code>1.5-SNAPSHOT</code> as well)
+    </p>
+    <h2>Latest versions</h2>
+    <div class="flex flex-col gap-2 items-start">
+      <fieldset>
+        <input type="checkbox" id="allow-snapshots" />
+        <label for="allow-snapshots">Include Snapshots</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Select a ModLoader</legend>
+        <input type="radio" id="mod-loader-fabric" name="modLoader" checked />
+        <label for="mod-loader-fabric">Fabric</label>
+
+        <input type="radio" id="mod-loader-quilt" name="modLoader" />
+        <label for="mod-loader-quilt">Quilt</label>
+      </fieldset>
+
+      <input type="text" id="mc-version" list="version-list" value="1.7.2" />
+      <label for="mc-version-autocomplete">Game version</label>
+      <datalist id="version-list">
+        <option value="1.7.2"></option>
+        <!-- DO NOT INSERT ANYTHING HERE -->
+        <!-- Data here will be inserted by JavaScript -->
+      </datalist>
+
+      <p>Paste these in gradle.properties in your project</p>
+
+      <code id="ornithe-dependencies"> # Dependencies </code>
+      <p id="dependencies-extra-message"></p>
+    </div>
+  </main>
+</Layout>
