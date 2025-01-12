@@ -182,7 +182,7 @@
     }
 
     async function getOrnitheDependenciesForMerged(minecraftVersion, featherBuild) {
-        lines = [];
+        const lines = [];
 
         const ravenBuild = await getLatestRavenBuild(minecraftVersion);
         const sparrowBuild = await getLatestSparrowBuild(minecraftVersion);
@@ -218,15 +218,15 @@
                 `environement = ${environment}`
             ];
 
-            const ravenBuild = await getLatestRavenBuild(minecraftVersion);
+            let ravenBuild = await getLatestRavenBuild(minecraftVersion);
             if (ravenBuild === null) {
                 ravenBuild = await getLatestRavenBuild(`${minecraftVersion}-${environment}`);
             }
-            const sparrowBuild = await getLatestSparrowBuild(minecraftVersion);
+            let sparrowBuild = await getLatestSparrowBuild(minecraftVersion);
             if (sparrowBuild === null) {
                 sparrowBuild = await getLatestSparrowBuild(`${minecraftVersion}-${environment}`);
             }
-            const nestsBuild = await getLatestNestsBuild(minecraftVersion);
+            let nestsBuild = await getLatestNestsBuild(minecraftVersion);
             if (nestsBuild === null) {
                 nestsBuild = await getLatestNestsBuild(`${minecraftVersion}-${environment}`);
             }
