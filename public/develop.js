@@ -143,12 +143,12 @@
     async function updateOrnitheDependencies() {
         setExtraMsg("");
         if (possibleVersions.some(version => versionSelectorInput.value === version)) {
-            document.getElementById("ornithe-dependencies").innerText = await constructOrnitheDependenciesMessage(minecraftVersion);
+            document.getElementById("ornithe-dependencies").innerText = await constructOrnitheDependenciesMessage();
         }
     }
 
-    async function constructOrnitheDependenciesMessage(minecraftVersion) {
-        const lines = [
+    async function constructOrnitheDependenciesMessage() {
+        let lines = [
             "### <project root>/gradle.properties",
             "# Dependencies"
         ];
@@ -170,18 +170,18 @@
         if (featherBuild !== null) {
             addExtraMsg("Make sure to use the \"merged\" mod template for this Minecraft version!");
 
-            lines.concat(await getOrnitheDependenciesForMerged(minecraftVersion, featherBuild));
+            lines = lines.concat(await getOrnitheDependenciesForMerged(minecraftVersion, featherBuild));
         } else {
             addExtraMsg("Make sure to use the \"split\" mod template for this Minecraft version!");
 
-            lines.concat(await getOrnitheDependenciesForSplit(minecraftVersion, "client"));
-            lines.concat(await getOrnitheDependenciesForSplit(minecraftVersion, "server"));
+            lines = lines.concat(await getOrnitheDependenciesForSplit(minecraftVersion, "client"));
+            lines = lines.concat(await getOrnitheDependenciesForSplit(minecraftVersion, "server"));
         }
 
         return lines.join("\n");
     }
 
-    async function getOrnitheDependenciesForSplit(minecraftVersion, featherBuild) {
+    async function getOrnitheDependenciesForMerged(minecraftVersion, featherBuild) {
         lines = [];
 
         const ravenBuild = await getLatestRavenBuild(minecraftVersion);
@@ -208,9 +208,9 @@
         return lines;
     }
 
-    async function getOrnitheDependenciesForMerged(minecraftVersion, environment) {
+    async function getOrnitheDependenciesForSplit(minecraftVersion, environment) {
         const featherBuild = await getLatestFeatherBuild(`${minecraftVersion}-${environment}`);
-        
+
         if (featherBuild !== null) {
             const lines = [
                 "",
