@@ -141,13 +141,14 @@
     }
 
     async function updateOrnitheDependencies() {
-        setExtraMsg("");
         if (possibleVersions.some(version => versionSelectorInput.value === version)) {
             document.getElementById("ornithe-dependencies").innerText = await constructOrnitheDependenciesMessage();
         }
     }
 
     async function constructOrnitheDependenciesMessage() {
+        setExtraMsg("");
+
         let lines = [
             "### <project root>/gradle.properties",
             "# Dependencies"
