@@ -27,6 +27,14 @@
         return await getFromMeta("versions", "feather", mcVersion);
     }
 
+    async function getRavenVersionMeta(mcVersion) {
+        return await getFromMeta("versions", "raven", mcVersion);
+    }
+
+    async function getSparrowVersionMeta(mcVersion) {
+        return await getFromMeta("versions", "sparrow", mcVersion);
+    }
+
     async function getNestsVersionMeta(mcVersion) {
         return await getFromMeta("versions", "nests", mcVersion);
     }
@@ -75,6 +83,20 @@
             .then(e => e !== undefined ? e.build : null);
     }
 
+    async function getLatestRavenBuild(mcVersion) {
+        return await getRavenVersionMeta(mcVersion)
+            .then(l => l.sort((e1, e2) => e2.build - e1.build))
+            .then(([head, ..._]) => head)
+            .then(e => e !== undefined ? e.build : null);
+    }
+
+    async function getLatestSparrowBuild(mcVersion) {
+        return await getSparrowVersionMeta(mcVersion)
+            .then(l => l.sort((e1, e2) => e2.build - e1.build))
+            .then(([head, ..._]) => head)
+            .then(e => e !== undefined ? e.build : null);
+    }
+
     async function getLatestNestsBuild(mcVersion) {
         return await getNestsVersionMeta(mcVersion)
             .then(l => l.sort((e1, e2) => e2.build - e1.build))
@@ -106,41 +128,10 @@
     const versionListElement = document.getElementById("version-list");
     const allowSnapshotsCheck = document.getElementById("allow-snapshots");
 
-    async function getNestsFeatherBuilds(minecraftVersion) {
-        const featherBuild = await getLatestFeatherBuild(minecraftVersion);
-        if (featherBuild !== null) {
-            const nestsBuild = await getLatestNestsBuild(minecraftVersion);
-            addExtraMsg("Make sure to use the \"merged\" mod template for this Minecraft version!");
-            if (nestsBuild === null)
-                addExtraMsg("Nests are unavailable for this Minecraft version - make sure to edit your build.gradle appropriately!");
-            return [
-                `feather_build = ${featherBuild}`,
-                nestsBuild ? `nests_build = ${nestsBuild}` : "# nests aren't used for this version"
-            ].join("\n");
-        } else {
-            addExtraMsg("Make sure to use the \"split\" mod template for this Minecraft version!");
-            const featherBuildClient = await getLatestFeatherBuild(minecraftVersion + "-client");
-            const featherBuildServer = await getLatestFeatherBuild(minecraftVersion + "-server");
-            const nestsBuildClient = await getLatestNestsBuild(minecraftVersion + "-client");
-            const nestsBuildServer = await getLatestNestsBuild(minecraftVersion + "-server");
-            return [
-                "",
-                "### <project root>/client/gradle.properties",
-                "environement = client",
-                `feather_build = ${featherBuildClient}`,
-                `nests_build = ${nestsBuildClient}`,
-                "",
-                "### <project root>/server/gradle.properties",
-                "environment = server",
-                `feather_build = ${featherBuildServer}`,
-                `nests_build = ${nestsBuildServer}`
-            ].join("\n");
-        }
-    }
-
     function setExtraMsg(message) {
         document.getElementById("dependencies-extra-message").innerText = message;
     }
+
     function getExtraMsg() {
         return document.getElementById("dependencies-extra-message").innerText;
     }
@@ -150,24 +141,118 @@
     }
 
     async function updateOrnitheDependencies() {
-        setExtraMsg("");
         if (possibleVersions.some(version => versionSelectorInput.value === version)) {
-            const loader = Object.entries(loaderSelectorRadios).find(([_, button]) => button.checked)[0];
-
-            const minecraftVersion = versionSelectorInput.value;
-            const loaderVersion = await getLatestLoader(loader);
-            const oslVersion = await getLatestOsl();
-            const nestsFeatherBuildsStr = await getNestsFeatherBuilds(minecraftVersion);
-            document.getElementById("ornithe-dependencies").innerText =
-                [
-                    "### <project root>/gradle.properties",
-                    "# Dependencies",
-                    `minecraft_version = ${minecraftVersion}`,
-                    `loader_version = ${loaderVersion}`,
-                    `osl_version = ${oslVersion}`,
-                    nestsFeatherBuildsStr
-                ].join("\n");
+            document.getElementById("ornithe-dependencies").innerText = await constructOrnitheDependenciesMessage();
         }
+    }
+
+    async function constructOrnitheDependenciesMessage() {
+        setExtraMsg("");
+
+        let lines = [
+            "### <project root>/gradle.properties",
+            "# Dependencies"
+        ];
+
+        const loader = Object.entries(loaderSelectorRadios).find(([_, button]) => button.checked)[0];
+
+        const minecraftVersion = versionSelectorInput.value;
+        const loaderVersion = await getLatestLoader(loader);
+        const oslVersion = await getLatestOsl();
+
+        lines.push(
+            `minecraft_version = ${minecraftVersion}`,
+            `loader_version = ${loaderVersion}`,
+            `osl_version = ${oslVersion}`
+        );
+
+        const featherBuild = await getLatestFeatherBuild(minecraftVersion);
+
+        if (featherBuild !== null) {
+            addExtraMsg("Make sure to use the \"merged\" mod template for this Minecraft version!");
+
+            lines = lines.concat(await getOrnitheDependenciesForMerged(minecraftVersion, featherBuild));
+        } else {
+            addExtraMsg("Make sure to use the \"split\" mod template for this Minecraft version!");
+
+            lines = lines.concat(await getOrnitheDependenciesForSplit(minecraftVersion, "client"));
+            lines = lines.concat(await getOrnitheDependenciesForSplit(minecraftVersion, "server"));
+        }
+
+        return lines.join("\n");
+    }
+
+    async function getOrnitheDependenciesForMerged(minecraftVersion, featherBuild) {
+        const lines = [];
+
+        const ravenBuild = await getLatestRavenBuild(minecraftVersion);
+        const sparrowBuild = await getLatestSparrowBuild(minecraftVersion);
+        const nestsBuild = await getLatestNestsBuild(minecraftVersion);
+
+        lines.push(`feather_build = ${featherBuild}`);
+        if (ravenBuild !== null) {
+            lines.push(`raven_build = ${ravenBuild}`);
+        } else {
+            addExtraMsg("Raven is unavailable for this Minecraft version - make sure to edit your build.gradle appropriately!");
+        }
+        if (sparrowBuild !== null) {
+            lines.push(`sparrow_build = ${sparrowBuild}`);
+        } else {
+            addExtraMsg("Sparrow is unavailable for this Minecraft version - make sure to edit your build.gradle appropriately!");
+        }
+        if (nestsBuild !== null) {
+            lines.push(`nests_build = ${nestsBuild}`);
+        } else {
+            addExtraMsg("Nests are unavailable for this Minecraft version - make sure to edit your build.gradle appropriately!");
+        }
+
+        return lines;
+    }
+
+    async function getOrnitheDependenciesForSplit(minecraftVersion, environment) {
+        const featherBuild = await getLatestFeatherBuild(`${minecraftVersion}-${environment}`);
+
+        if (featherBuild !== null) {
+            const lines = [
+                "",
+                `### <project root>/${environment}/gradle.properties`,
+                `environment = ${environment}`
+            ];
+
+            let ravenBuild = await getLatestRavenBuild(minecraftVersion);
+            if (ravenBuild === null) {
+                ravenBuild = await getLatestRavenBuild(`${minecraftVersion}-${environment}`);
+            }
+            let sparrowBuild = await getLatestSparrowBuild(minecraftVersion);
+            if (sparrowBuild === null) {
+                sparrowBuild = await getLatestSparrowBuild(`${minecraftVersion}-${environment}`);
+            }
+            let nestsBuild = await getLatestNestsBuild(minecraftVersion);
+            if (nestsBuild === null) {
+                nestsBuild = await getLatestNestsBuild(`${minecraftVersion}-${environment}`);
+            }
+
+            lines.push(`feather_build = ${featherBuild}`);
+            if (ravenBuild !== null) {
+                lines.push(`raven_build = ${ravenBuild}`);
+            } else {
+                addExtraMsg(`Raven is unavailable on the ${environment} for this Minecraft version - make sure to edit your build.gradle appropriately!`);
+            }
+            if (sparrowBuild !== null) {
+                lines.push(`sparrow_build = ${sparrowBuild}`);
+            } else {
+                addExtraMsg(`Sparrow is unavailable on the ${environment} for this Minecraft version - make sure to edit your build.gradle appropriately!`);
+            }
+            if (nestsBuild !== null) {
+                lines.push(`nests_build = ${nestsBuild}`);
+            } else {
+                addExtraMsg(`Nests are unavailable on the ${environment} for this Minecraft version - make sure to edit your build.gradle appropriately!`);
+            }
+
+            return lines;
+        }
+
+        return [];
     }
 
     Object.entries(loaderSelectorRadios).forEach(([_, button]) => button.addEventListener("change", async _ => await updateOrnitheDependencies()));
