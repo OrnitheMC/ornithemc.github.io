@@ -216,7 +216,7 @@
             const lines = [
                 "",
                 `### <project root>/${environment}/gradle.properties`,
-                `environement = ${environment}`
+                `environment = ${environment}`
             ];
 
             let ravenBuild = await getLatestRavenBuild(minecraftVersion);
