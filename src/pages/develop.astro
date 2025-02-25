@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 ---
 
-<script src="/develop.js" defer></script>
+<script type="module" src="/develop.js" defer></script>
 
 <Layout title="Develop - OrnitheMC">
   <main class="flex flex-col gap-4">
@@ -32,8 +32,8 @@ import Layout from "../layouts/Layout.astro";
         <label for="mod-loader-quilt">Quilt</label>
       </fieldset>
 
+      <label for="mc-version">Game version</label>
       <input type="text" id="mc-version" list="version-list" value="1.7.2" />
-      <label for="mc-version-autocomplete">Game version</label>
       <datalist id="version-list">
         <option value="1.7.2"></option>
         <!-- DO NOT INSERT ANYTHING HERE -->

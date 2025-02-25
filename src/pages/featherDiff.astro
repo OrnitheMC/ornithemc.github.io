@@ -1,0 +1,49 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<script type="module" src="/feather_diff.js" defer></script>
+
+<Layout title="Feather - Build diff viewer">
+    <main class="flex flex-col gap-4">
+        <!-- Familiar, eh? -wwp -->
+        <h1>Feather - Build diff viewer</h1>
+
+        <h2>Latest versions</h2>
+        <div class="flex flex-col gap-2 items-start">
+            <fieldset>
+                <input type="checkbox" id="allow-snapshots" />
+                <label for="allow-snapshots">Include Snapshots</label>
+            </fieldset>
+
+            <label for="mc-version">Game version</label>
+            <input type="text" id="mc-version" list="version-list" value="1.7.2" />
+            <datalist id="version-list">
+                <option value="1.7.2"></option>
+                <!-- DO NOT INSERT ANYTHING HERE -->
+                <!-- Data here will be inserted by JavaScript -->
+            </datalist>
+
+            <h2>Builds:</h2>
+            <label for="build-source">Source build</label>
+            <select id="build-source">
+                <!-- DO NOT INSERT ANYTHING HERE -->
+                <!-- Data here will be inserted by JavaScript -->
+            </select>
+            <label for="build-target">Target build</label>
+            <select id="build-target">
+                <!-- DO NOT INSERT ANYTHING HERE -->
+                <!-- Data here will be inserted by JavaScript -->
+            </select>
+
+            <div id="diff-viewer" style="display:none">
+                <h3>Classes:</h3>
+                <p id="classes-diff"></p>
+                <h3>Methods:</h3>
+                <p id="methods-diff"></p>
+                <h3>Fields:</h3>
+                <p id="fields-diff"></p>
+            </div>
+        </div>
+    </main>
+</Layout>
