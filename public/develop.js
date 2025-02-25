@@ -173,6 +173,6 @@ import {
 
     possibleVersions = minecraftStableVersions;
     updateVersionList()
-    updateOrnitheDependencies()
+    await updateOrnitheDependencies()
 
 })()

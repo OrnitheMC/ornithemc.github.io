@@ -20,7 +20,7 @@ async function getMinecraftVersionsMeta() {
     return await getFromMeta("versions", "game");
 }
 
-async function getFeatherVersionMeta(mcVersion) {
+export async function getFeatherVersionMeta(mcVersion) {
     return await getFromMeta("versions", "feather", mcVersion);
 }
 
@@ -113,4 +113,24 @@ export async function getLatestOsl() {
         .then(l => l.sort((e1, e2) => compareVersion(e1.version, e2.version)))
         .then(([head, ..._]) => head)
         .then(e => e.version);
+}
+
+const MAVEN = "maven." + URL;
+
+function makeMavenUrl(...pathComponents) {
+    let url = MAVEN + "/releases";
+    for (const pathComponent of pathComponents) {
+        url += "/";
+        url += pathComponent;
+    }
+    return "https://" + url;
+}
+
+function makeOrnitheMavenUrl(...pathComponents) {
+    return makeMavenUrl("net/ornithemc", ...pathComponents);
+}
+
+export async function getFeatherBuildMaven(version) {
+    const url = makeOrnitheMavenUrl("feather", version, "feather-" + version + "-tiny.gz");
+    return await fetch(url);
 }
