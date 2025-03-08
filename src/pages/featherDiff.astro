@@ -25,24 +25,44 @@ import Layout from "../layouts/Layout.astro";
             </datalist>
 
             <h2>Builds:</h2>
-            <label for="build-source">Source build</label>
-            <select id="build-source">
-                <!-- DO NOT INSERT ANYTHING HERE -->
-                <!-- Data here will be inserted by JavaScript -->
-            </select>
-            <label for="build-target">Target build</label>
-            <select id="build-target">
-                <!-- DO NOT INSERT ANYTHING HERE -->
-                <!-- Data here will be inserted by JavaScript -->
-            </select>
+            <div style="display: flex; gap: 5rem;">
+                <div style="display: flex; flex-direction: column;">
+                    <label for="build-source">Source build</label>
+                    <select id="build-source">
+                        <!-- DO NOT INSERT ANYTHING HERE -->
+                        <!-- Data here will be inserted by JavaScript -->
+                    </select>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <label for="build-target">Target build</label>
+                    <select id="build-target">
+                        <!-- DO NOT INSERT ANYTHING HERE -->
+                        <!-- Data here will be inserted by JavaScript -->
+                    </select>
+                </div>
+            </div>
 
-            <div id="diff-viewer" style="display:none">
-                <h3>Classes:</h3>
-                <p id="classes-diff"></p>
-                <h3>Methods:</h3>
-                <p id="methods-diff"></p>
-                <h3>Fields:</h3>
-                <p id="fields-diff"></p>
+            <div id="diff-viewer" style="display:none; max-width: 100%;">
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                    <div style="flex: 1; min-width: 32%;">
+                        <h3>Classes:</h3>
+                        <div style="overflow-y: auto; max-height: 480px;">
+                            <p id="classes-diff"></p>
+                        </div>
+                    </div>
+                    <div style="flex: 1; min-width: 32%;">
+                        <h3>Methods:</h3>
+                        <div style="overflow-y: auto; max-height: 480px;">
+                            <p id="methods-diff"></p>
+                        </div>
+                    </div>
+                    <div style="flex: 1; min-width: 32%;">
+                        <h3>Fields:</h3>
+                        <div style="overflow-y: auto; max-height: 480px;">
+                            <p id="fields-diff"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
