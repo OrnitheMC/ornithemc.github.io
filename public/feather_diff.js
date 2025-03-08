@@ -24,6 +24,8 @@ import * as tiny from "./tiny_mappings.js";
   const buildTargetElement = document.getElementById("build-target");
   const diffViewerElement = document.getElementById("diff-viewer");
 
+  const hideClassPath = document.getElementById("hide-class-path");
+
   async function updateFeatherBuilds() {
     if (
       possibleVersions.some((version) => versionSelectorInput.value === version)
@@ -83,7 +85,7 @@ import * as tiny from "./tiny_mappings.js";
   }
 
   function diffMappings(source, target) {
-    printDiff(diffMemberArray(source.classes, target), "classes-diff")
+    printDiff(diffMemberArray(source.classes, target, hideClassPath.checked), "classes-diff")
     printDiff(diffMemberArray(source.methods, target), "methods-diff")
     printDiff(diffMemberArray(source.fields, target), "fields-diff")
   }
@@ -92,16 +94,26 @@ import * as tiny from "./tiny_mappings.js";
     document.getElementById(elementID).innerText = diff.map(value => `${value.source} -> ${value.target}`).join("\n")
   }
 
-  function diffMemberArray(source, targetMappings) {
+  function diffMemberArray(source, targetMappings, stripPath = false) {
     let diff = []
 
     source.forEach(source => {
       let target = targetMappings.find(source.calamus)
 
       if (target !== undefined && source.feather !== target.feather) {
+        let sourceFeather = source.feather;
+        let targetFeather = target.feather;
+
+        if (stripPath) {
+          if (sourceFeather.substring(0, sourceFeather.lastIndexOf('/')) === targetFeather.substring(0, targetFeather.lastIndexOf('/'))) {
+            sourceFeather = sourceFeather.split('/').pop();
+            targetFeather = targetFeather.split('/').pop();
+          }
+        }
+
         diff.push({
-          source: source.feather,
-          target: target.feather
+          source: sourceFeather,
+          target: targetFeather
         })
       }
     })
@@ -131,6 +143,10 @@ import * as tiny from "./tiny_mappings.js";
     "change",
     async (_) => await updateFeatherDiff(),
   );
+
+  hideClassPath.addEventListener("change", async (_) => {
+    await updateFeatherDiff();
+  });
 
   function updateVersionList() {
     const list = possibleVersions;
