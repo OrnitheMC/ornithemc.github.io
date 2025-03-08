@@ -27,7 +27,7 @@ export class Mappings {
     find(name) {
         let type = name.split("_")[0].split("/").pop()
         switch (type) {
-            case "c":
+            case "C":
                 return this.classes.get(name)
             case "m":
                 return this.methods.get(name)
