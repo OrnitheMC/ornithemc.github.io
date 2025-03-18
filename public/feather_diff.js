@@ -7,7 +7,6 @@ import {
   getMinecraftVersions,
 } from "./meta_maven_utils.js";
 
-import { decompressSync } from "https://cdn.skypack.dev/fflate@0.8.2?min";
 import * as tiny from "./tiny_mappings.js";
 
 (async () => {
@@ -59,9 +58,26 @@ import * as tiny from "./tiny_mappings.js";
         // Convert to Uint8Array
         return new Uint8Array(arrayBuffer);
       });
-    const decompressed = decompressSync(arrayBuf);
-    const decoder = new TextDecoder("utf-8");
-    const file = decoder.decode(decompressed);
+
+    const readableStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(arrayBuf);
+        controller.close();
+      }
+    });
+    const ds = new DecompressionStream("gzip");
+    const tds = new TextDecoderStream("utf-8")
+
+    let file = '';
+    const reader = readableStream.pipeThrough(ds).pipeThrough(tds).getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      file += value;
+    }
+
     return tiny.parseTiny(file);
   }
 
