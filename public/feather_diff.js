@@ -23,7 +23,7 @@ import * as tiny from "./tiny_mappings.js";
   const buildTargetElement = document.getElementById("build-target");
   const diffViewerElement = document.getElementById("diff-viewer");
 
-  const hideClassPath = document.getElementById("hide-class-path");
+  const hidePackage = document.getElementById("hide-package");
 
   async function updateFeatherBuilds() {
     if (
@@ -101,7 +101,7 @@ import * as tiny from "./tiny_mappings.js";
   }
 
   function diffMappings(source, target) {
-    printDiff(diffMemberArray(source.classes, target, hideClassPath.checked), "classes-diff")
+    printDiff(diffMemberArray(source.classes, target, hidePackage.checked), "classes-diff")
     printDiff(diffMemberArray(source.methods, target), "methods-diff")
     printDiff(diffMemberArray(source.fields, target), "fields-diff")
   }
@@ -160,7 +160,7 @@ import * as tiny from "./tiny_mappings.js";
     async (_) => await updateFeatherDiff(),
   );
 
-  hideClassPath.addEventListener("change", async (_) => {
+  hidePackage.addEventListener("change", async (_) => {
     await updateFeatherDiff();
   });
 
