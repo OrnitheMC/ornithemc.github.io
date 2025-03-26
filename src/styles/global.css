@@ -70,6 +70,17 @@ input[class~="dark"] {
   @apply text-ornithe-text bg-ornithe-input-bg border-none p-2 w-fit;
 }
 
+select {
+  @apply text-ornithe-text bg-ornithe-input-bg border-none p-2 w-fit;
+}
+select[class~="dark"] {
+  @apply text-ornithe-text bg-ornithe-input-bg border-none p-2 w-fit;
+}
+
+div {
+  scrollbar-color: var(--text-ornithe) var(--bg-o-transparent);
+}
+
 /*If someone could get a tailwind.css file working I'd be grateful. -worldwidepixel*/
 
 @tailwind utilities;
