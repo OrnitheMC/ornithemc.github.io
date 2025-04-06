@@ -16,32 +16,42 @@ async function getFromMeta(...pathComponents) {
     return response.json();
 }
 
-async function getMinecraftVersionsMeta() {
-    return await getFromMeta("versions", "game");
+async function getVersionsFromMeta(...pathComponents) {
+    let response = await getFromMeta("versions", ...pathComponents);
+    return response;
 }
 
-export async function getFeatherVersionMeta(mcVersion) {
-    return await getFromMeta("versions", "feather", mcVersion);
+async function getVersionsWithGenFromMeta(ornitheGen, ...pathComponents) {
+    let response = await getVersionsFromMeta(ornitheGen, ...pathComponents);
+    return response;
+}
+
+async function getMinecraftVersionsMeta(ornitheGen) {
+    return await getVersionsWithGenFromMeta(ornitheGen, "game");
+}
+
+export async function getFeatherVersionMeta(ornitheGen, mcVersion) {
+    return await getVersionsWithGenFromMeta(ornitheGen, "feather", mcVersion);
 }
 
 async function getRavenVersionMeta(mcVersion) {
-    return await getFromMeta("versions", "raven", mcVersion);
+    return await getVersionsFromMeta("raven", mcVersion);
 }
 
 async function getSparrowVersionMeta(mcVersion) {
-    return await getFromMeta("versions", "sparrow", mcVersion);
+    return await getVersionsFromMeta("sparrow", mcVersion);
 }
 
 async function getNestsVersionMeta(mcVersion) {
-    return await getFromMeta("versions", "nests", mcVersion);
+    return await getVersionsFromMeta("nests", mcVersion);
 }
 
 async function getLoaderVersionsMeta(loader) {
-    return await getFromMeta("versions", loader + "-loader");
+    return await getVersionsFromMeta(loader + "-loader");
 }
 
 async function getOslVersionsMeta() {
-    return await getFromMeta("versions", "osl");
+    return await getVersionsFromMeta("osl");
 }
 
 function compareVersion(sv1, sv2) {
@@ -61,21 +71,24 @@ function compareVersion(sv1, sv2) {
     return rec(sv1.split("."), sv2.split("."));
 }
 
-export async function getMinecraftVersions() {
-    return await getMinecraftVersionsMeta()
+export async function getMinecraftVersions(gen) {
+    return await getMinecraftVersionsMeta(gen)
         .then(l => l.map(v => v.version));
 }
 
-export async function getMinecraftStableVersions() {
-    return await getMinecraftVersionsMeta()
+export async function getMinecraftStableVersions(gen) {
+    return await getMinecraftVersionsMeta(gen)
         .then(l => l.filter(v => v.stable))
         .then(l => l.map(v => v.version));
 }
 
-export async function getLatestFeatherBuild(mcVersion) {
-    return await getFeatherVersionMeta(mcVersion)
+export async function getLatestFeatherBuild(gen, mcVersion) {
+    return await getFeatherVersionMeta(gen, mcVersion)
         .then(l => l.sort((e1, e2) => e2.build - e1.build))
-        .then(s => { console.log(s); return s; })
+        .then(s => {
+            console.log(s);
+            return s;
+        })
         .then(([head, ..._]) => head)
         .then(e => e !== undefined ? e.build : null);
 }
