@@ -10,12 +10,24 @@ import {
 } from "./meta_maven_utils.js";
 
 (async () => {
-    const minecraftStableVersions = await getMinecraftStableVersions();
-    const minecraftAllVersions = await getMinecraftVersions();
+    let minecraftStableVersions = await getMinecraftStableVersions("gen1");
+    let minecraftAllVersions = await getMinecraftVersions("gen1");
 
     let possibleVersions;
 
-    const loaderSelectorRadios = { fabric: document.getElementById("mod-loader-fabric"), quilt: document.getElementById("mod-loader-quilt") }
+    const loaderSelectorRadios = {
+        fabric: document.getElementById("mod-loader-fabric"),
+        quilt: document.getElementById("mod-loader-quilt")
+    }
+    const genSelectorRadios = {
+        gen1: document.getElementById("generation-gen1"),
+        gen2: document.getElementById("generation-gen2")
+    }
+    document.getElementById("calamus-gen-selectors").addEventListener("change", async (e) => {
+        const gen = Object.entries(genSelectorRadios).find(([_, button]) => button === e.target)[0];
+        minecraftStableVersions = await getMinecraftStableVersions(gen);
+        minecraftAllVersions = await getMinecraftVersions(gen);
+    })
     const versionSelectorInput = document.getElementById("mc-version");
     const versionListElement = document.getElementById("version-list");
     const allowSnapshotsCheck = document.getElementById("allow-snapshots");
@@ -47,6 +59,7 @@ import {
         ];
 
         const loader = Object.entries(loaderSelectorRadios).find(([_, button]) => button.checked)[0];
+        const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
 
         const minecraftVersion = versionSelectorInput.value;
         const loaderVersion = await getLatestLoader(loader);
@@ -58,7 +71,7 @@ import {
             `osl_version = ${oslVersion}`
         );
 
-        const featherBuild = await getLatestFeatherBuild(minecraftVersion);
+        const featherBuild = await getLatestFeatherBuild(gen, minecraftVersion);
 
         if (featherBuild !== null) {
             addExtraMsg("Make sure to use the \"merged\" mod template for this Minecraft version!");
