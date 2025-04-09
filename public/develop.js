@@ -23,14 +23,10 @@ import {
         gen1: document.getElementById("generation-gen1"),
         gen2: document.getElementById("generation-gen2")
     }
-    document.getElementById("calamus-gen-selectors").addEventListener("change", async (e) => {
-        const gen = Object.entries(genSelectorRadios).find(([_, button]) => button === e.target)[0];
-        minecraftStableVersions = await getMinecraftStableVersions(gen);
-        minecraftAllVersions = await getMinecraftVersions(gen);
-    })
     const versionSelectorInput = document.getElementById("mc-version");
     const versionListElement = document.getElementById("version-list");
     const allowSnapshotsCheck = document.getElementById("allow-snapshots");
+    const featherGenSelector = document.getElementById("calamus-gen-selectors");
 
     function setExtraMsg(message) {
         document.getElementById("dependencies-extra-message").innerText = message;
@@ -47,6 +43,9 @@ import {
     async function updateOrnitheDependencies() {
         if (possibleVersions.some(version => versionSelectorInput.value === version)) {
             document.getElementById("ornithe-dependencies").innerText = await constructOrnitheDependenciesMessage();
+        } else {
+            document.getElementById("ornithe-dependencies").innerText = "Please select a valid Minecraft version!";
+            setExtraMsg("");
         }
     }
 
@@ -164,14 +163,30 @@ import {
 
     versionSelectorInput.addEventListener("input", async _ => await updateOrnitheDependencies())
 
-    allowSnapshotsCheck.addEventListener("change", _ => {
+    allowSnapshotsCheck.addEventListener("change", async _ => {
         if (allowSnapshotsCheck.checked) {
             possibleVersions = minecraftAllVersions;
         } else {
             possibleVersions = minecraftStableVersions;
         }
         updateVersionList();
-        updateOrnitheDependencies();
+        await updateOrnitheDependencies();
+    })
+
+    featherGenSelector.addEventListener("change", async (e) => {
+        const gen = Object.entries(genSelectorRadios).find(([_, button]) => button === e.target)[0];
+        minecraftStableVersions = await getMinecraftStableVersions(gen);
+        minecraftAllVersions = await getMinecraftVersions(gen);
+
+        // Update the version list based on snapshot checkbox
+        if (allowSnapshotsCheck.checked) {
+            possibleVersions = minecraftAllVersions;
+        } else {
+            possibleVersions = minecraftStableVersions;
+        }
+        updateVersionList();
+        // Update the dependencies message since it depends on the feather gen
+        await updateOrnitheDependencies();
     })
 
     function updateVersionList() {
