@@ -10,8 +10,8 @@ import {
 import * as tiny from "./tiny_mappings.js";
 
 (async () => {
-  const minecraftStableVersions = await getMinecraftStableVersions();
-  const minecraftAllVersions = await getMinecraftVersions();
+  const minecraftStableVersions = await getMinecraftStableVersions("gen1");
+  const minecraftAllVersions = await getMinecraftVersions("gen1");
 
   let possibleVersions;
 
@@ -29,7 +29,7 @@ import * as tiny from "./tiny_mappings.js";
     if (
       possibleVersions.some((version) => versionSelectorInput.value === version)
     ) {
-      await getFeatherVersionMeta(versionSelectorInput.value).then(
+      await getFeatherVersionMeta("gen1", versionSelectorInput.value).then(
         (featherVersionMeta) => {
           buildSourceElement.innerHTML = "";
           buildTargetElement.innerHTML = "";
