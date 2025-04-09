@@ -10,14 +10,20 @@ import {
 import * as tiny from "./tiny_mappings.js";
 
 (async () => {
-  const minecraftStableVersions = await getMinecraftStableVersions("gen1");
-  const minecraftAllVersions = await getMinecraftVersions("gen1");
+  let minecraftStableVersions = await getMinecraftStableVersions("gen1");
+  let minecraftAllVersions = await getMinecraftVersions("gen1");
 
   let possibleVersions;
+
+  const genSelectorRadios = {
+    gen1: document.getElementById("generation-gen1"),
+    gen2: document.getElementById("generation-gen2")
+  }
 
   const versionSelectorInput = document.getElementById("mc-version");
   const versionListElement = document.getElementById("version-list");
   const allowSnapshotsCheck = document.getElementById("allow-snapshots");
+  const featherGenSelector = document.getElementById("calamus-gen-selectors");
 
   const buildSourceElement = document.getElementById("build-source");
   const buildTargetElement = document.getElementById("build-target");
@@ -29,7 +35,8 @@ import * as tiny from "./tiny_mappings.js";
     if (
       possibleVersions.some((version) => versionSelectorInput.value === version)
     ) {
-      await getFeatherVersionMeta("gen1", versionSelectorInput.value).then(
+      const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
+      await getFeatherVersionMeta(gen, versionSelectorInput.value).then(
         (featherVersionMeta) => {
           buildSourceElement.innerHTML = "";
           buildTargetElement.innerHTML = "";
@@ -47,11 +54,16 @@ import * as tiny from "./tiny_mappings.js";
 
       // Hide the diff viewer bc the source and target builds are the same
       diffViewerElement.style.display = "none";
+    } else {
+      buildSourceElement.innerHTML = "";
+      buildTargetElement.innerHTML = "";
+      diffViewerElement.style.display = "none";
     }
   }
 
   async function getTinyMappings(version) {
-    let arrayBuf = await getFeatherBuildMaven(version)
+    const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
+    let arrayBuf = await getFeatherBuildMaven(gen, version)
       .then((response) => response.blob()) // Get response as a Blob
       .then(async (blob) => {
         const arrayBuffer = await blob.arrayBuffer(); // Convert Blob to ArrayBuffer
@@ -142,13 +154,16 @@ import * as tiny from "./tiny_mappings.js";
   );
 
   allowSnapshotsCheck.addEventListener("change", (_) => {
-    if (allowSnapshotsCheck.checked) {
-      possibleVersions = minecraftAllVersions;
-    } else {
-      possibleVersions = minecraftStableVersions;
-    }
     updateVersionList();
   });
+
+  featherGenSelector.addEventListener("change", async (e) => {
+    const gen = Object.entries(genSelectorRadios).find(([_, button]) => button === e.target)[0];
+    minecraftStableVersions = await getMinecraftStableVersions(gen);
+    minecraftAllVersions = await getMinecraftVersions(gen);
+
+    updateVersionList();
+  })
 
   buildSourceElement.addEventListener(
     "change",
@@ -165,17 +180,21 @@ import * as tiny from "./tiny_mappings.js";
   });
 
   function updateVersionList() {
-    const list = possibleVersions;
+    if (allowSnapshotsCheck.checked) {
+      possibleVersions = minecraftAllVersions;
+    } else {
+      possibleVersions = minecraftStableVersions;
+    }
+
     while (versionListElement.firstChild)
       versionListElement.removeChild(versionListElement.lastChild);
-    list.forEach((e) => {
+    possibleVersions.forEach((e) => {
       const opt = new Option();
       opt.value = e;
       versionListElement.appendChild(opt);
     });
   }
 
-  possibleVersions = minecraftStableVersions;
   updateVersionList();
   await updateFeatherBuilds();
 })();
