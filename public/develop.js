@@ -80,8 +80,8 @@ import {
         } else {
             addExtraMsg("Make sure to use the \"split\" mod template for this Minecraft version!");
 
-            lines = lines.concat(await getOrnitheDependenciesForSplit(minecraftVersion, "client"));
-            lines = lines.concat(await getOrnitheDependenciesForSplit(minecraftVersion, "server"));
+            lines = lines.concat(await getOrnitheDependenciesForSplit(gen, minecraftVersion, "client"));
+            lines = lines.concat(await getOrnitheDependenciesForSplit(gen, minecraftVersion, "server"));
         }
 
         return lines.join("\n");
@@ -114,8 +114,8 @@ import {
         return lines;
     }
 
-    async function getOrnitheDependenciesForSplit(minecraftVersion, environment) {
-        const featherBuild = await getLatestFeatherBuild(`${minecraftVersion}-${environment}`);
+    async function getOrnitheDependenciesForSplit(gen, minecraftVersion, environment) {
+        const featherBuild = await getLatestFeatherBuild(gen,`${minecraftVersion}-${environment}`);
 
         if (featherBuild !== null) {
             const lines = [
