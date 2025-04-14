@@ -143,7 +143,21 @@ function makeOrnitheMavenUrl(...pathComponents) {
     return makeMavenUrl("net/ornithemc", ...pathComponents);
 }
 
-export async function getFeatherBuildMaven(version) {
-    const url = makeOrnitheMavenUrl("feather", version, "feather-" + version + "-tiny.gz");
+export async function getFeatherBuildMaven(ornitheGen, version) {
+    let feather;
+    switch (ornitheGen) {
+        case "gen1": {
+            feather = "feather";
+            break;
+        }
+        case "gen2": {
+            feather = "feather-gen2";
+            break;
+        }
+        default: {
+            throw new Error("Invalid generation: " + ornitheGen);
+        }
+    }
+    const url = makeOrnitheMavenUrl(feather, version, "feather-" + version + "-tiny.gz");
     return await fetch(url);
 }
