@@ -3,32 +3,25 @@ import Layout from "../layouts/Layout.astro";
 import Button from "../components/Button.astro";
 ---
 
+<script type="module" src="/installer.js" defer></script>
+
 <Layout title="OrnitheMC">
   <main class="flex flex-col gap-4">
     <h1>OrnitheMC</h1>
     <h2>About</h2>
     <span
-      >We're a project that aims to provide modding facilities through the Fabric
-      and Quilt toolchains to as many legacy Minecraft versions as reasonably possible,
-      while also providing extra tools to further enhance the development experience
-      for these versions. Currently we support versions from rd-132211 to 1.14.4,
-      including "non-final" minor releases, snapshots, combat snapshots and April Fools
-      versions released within this range, with the goal of also supporting every
-      discovered version archived by Omniarchive within this range.</span
+      >We're a project that aims to provide modding facilities through the
+      Fabric and Quilt toolchains to as many legacy Minecraft versions as
+      reasonably possible, while also providing extra tools to further enhance
+      the development experience for these versions. Currently we support
+      versions from rd-132211 to 1.14.4, including "non-final" minor releases,
+      snapshots, combat snapshots and April Fools versions released within this
+      range, with the goal of also supporting every discovered version archived
+      by Omniarchive within this range.</span
     >
     <h2>Downloads</h2>
-    <div class="flex flex-row flex-wrap gap-2">
-      <Button
-        title="Latest installer (JAR)"
-        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer"
-      />
-      <Button
-        title="Latest installer (EXE)"
-        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-native-bootstrap/windows-x86_64?extension=exe"
-      />
-    </div>
-    <span class="italic"
-      >Installer includes a PrismLauncher/MultiMC instance creator</span
-    >
+    <div id="latest-version-native" style="display: none;"></div>
+    <div id="platform-download" style="display: none;"></div>
+    <a href="/download">View all downloads</a>
   </main>
 </Layout>

@@ -1,0 +1,49 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
+---
+
+<script type="module" src="/installer.js" defer></script>
+
+<Layout title="Download - OrnitheMC">
+  <main class="flex flex-col gap-4">
+    <h1>Download</h1>
+    <div id="platform-download" style="display: none;"></div>
+    <h2>Native Installer</h2>
+    <div id="latest-version-native" style="display: none;"></div>
+    <div class="flex flex-row flex-wrap gap-2">
+      <Button
+        title="Latest installer (Linux, x86_64)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/linux-x86?extension=bin"
+      />
+      <Button
+        title="Latest installer (Windows, x86_64)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/windows-x86?extension=exe"
+      />
+      <Button
+        title="Latest installer (MacOS, aarch64)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/macos-aarch64?extension=bin"
+      />
+    </div>
+    <span class="italic">
+      The native installer includes a PrismLauncher/MultiMC instance creator &
+      Server bootstrap
+    </span>
+    <h2>Java-based Installer</h2>
+    <div id="latest-version-jar" style="display: none;"></div>
+    <div class="flex flex-row flex-wrap gap-2">
+      <Button
+        title="Latest installer (JAR)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer"
+      />
+      <Button
+        title="Latest installer (EXE)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-native-bootstrap/windows-x86_64?extension=exe"
+      />
+    </div>
+    <span class="italic"
+      >The java-based installer includes a PrismLauncher/MultiMC instance
+      creator</span
+    >
+  </main>
+</Layout>
