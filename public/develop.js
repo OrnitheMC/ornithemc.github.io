@@ -73,90 +73,86 @@ import {
         const featherBuild = await getLatestFeatherBuild(gen, minecraftVersion);
 
         if (featherBuild !== null) {
-            addExtraMsg("Make sure to use the \"merged\" mod template for this Minecraft version!");
+            // for gen1, Feather builds for Minecraft 1.3+ are for all sides
+            // for gen2, Feather builds for all Minecraft versions are for all sides
+            await addOrnitheDependenciesForBothSides(lines, gen, minecraftVersion, featherBuild);
+            // Raven, Sparrow, Nests builds for Minecraft versions between b1.0 and 1.3
+            // are for one side only, regardless of the intermediary gen
+            await addOrnitheDependenciesForOneSide(lines, gen, minecraftVersion, "client", null);
+            await addOrnitheDependenciesForOneSide(lines, gen, minecraftVersion, "server", null);
+        } else {
+            // this block is only reached for gen1 for Minecraft versions older than 1.3
+            // where Feather builds are for one side only
+            const clientFeatherBuild = await getLatestFeatherBuild(gen,`${minecraftVersion}-client`);
+            const serverFeatherBuild = await getLatestFeatherBuild(gen,`${minecraftVersion}-server`);
 
-            lines = lines.concat(await getOrnitheDependenciesForMerged(minecraftVersion, featherBuild));
+            await addOrnitheDependenciesForOneSide(lines, gen, minecraftVersion, "client", clientFeatherBuild);
+            await addOrnitheDependenciesForOneSide(lines, gen, minecraftVersion, "server", serverFeatherBuild);
+
+            // Raven, Sparrow, Nests builds for Minecraft versions older than b1.0
+            // or newer than 1.3 are for all sides, regardless of the intermediary gen
+            await addOrnitheDependenciesForBothSides(lines, gen, minecraftVersion, null);
+        }
+
+        if (gen === "gen2") {
+            addExtraMsg("Make sure to use the \"gen2\" mod template!");
+        } else if (featherBuild !== null) {
+            addExtraMsg("Make sure to use the \"merged\" mod template for this Minecraft version!");
         } else {
             addExtraMsg("Make sure to use the \"split\" mod template for this Minecraft version!");
-
-            lines = lines.concat(await getOrnitheDependenciesForSplit(gen, minecraftVersion, "client"));
-            lines = lines.concat(await getOrnitheDependenciesForSplit(gen, minecraftVersion, "server"));
         }
 
         return lines.join("\n");
     }
 
-    async function getOrnitheDependenciesForMerged(minecraftVersion, featherBuild) {
-        const lines = [];
-
+    async function addOrnitheDependenciesForBothSides(lines, gen, minecraftVersion, featherBuild) {
         const ravenBuild = await getLatestRavenBuild(minecraftVersion);
         const sparrowBuild = await getLatestSparrowBuild(minecraftVersion);
         const nestsBuild = await getLatestNestsBuild(minecraftVersion);
 
-        lines.push(`feather_build = ${featherBuild}`);
+        if (featherBuild !== null) {
+            lines.push(`feather_build = ${featherBuild}`);
+        }
         if (ravenBuild !== null) {
             lines.push(`raven_build = ${ravenBuild}`);
-        } else {
-            addExtraMsg("Raven is unavailable for this Minecraft version - make sure to edit your build.gradle appropriately!");
         }
         if (sparrowBuild !== null) {
             lines.push(`sparrow_build = ${sparrowBuild}`);
-        } else {
-            addExtraMsg("Sparrow is unavailable for this Minecraft version - make sure to edit your build.gradle appropriately!");
         }
         if (nestsBuild !== null) {
             lines.push(`nests_build = ${nestsBuild}`);
-        } else {
-            addExtraMsg("Nests are unavailable for this Minecraft version - make sure to edit your build.gradle appropriately!");
         }
-
-        return lines;
     }
 
-    async function getOrnitheDependenciesForSplit(gen, minecraftVersion, environment) {
-        const featherBuild = await getLatestFeatherBuild(gen,`${minecraftVersion}-${environment}`);
+    async function addOrnitheDependenciesForOneSide(lines, gen, minecraftVersion, environment, featherBuild) {
+        const ravenBuild = await getLatestRavenBuild(`${minecraftVersion}-${environment}`);
+        const sparrowBuild = await getLatestSparrowBuild(`${minecraftVersion}-${environment}`);
+        const nestsBuild = await getLatestNestsBuild(`${minecraftVersion}-${environment}`);
 
-        if (featherBuild !== null) {
-            const lines = [
-                "",
-                `### <project root>/${environment}/gradle.properties`,
-                `environment = ${environment}`
-            ];
-
-            let ravenBuild = await getLatestRavenBuild(minecraftVersion);
-            if (ravenBuild === null) {
-                ravenBuild = await getLatestRavenBuild(`${minecraftVersion}-${environment}`);
-            }
-            let sparrowBuild = await getLatestSparrowBuild(minecraftVersion);
-            if (sparrowBuild === null) {
-                sparrowBuild = await getLatestSparrowBuild(`${minecraftVersion}-${environment}`);
-            }
-            let nestsBuild = await getLatestNestsBuild(minecraftVersion);
-            if (nestsBuild === null) {
-                nestsBuild = await getLatestNestsBuild(`${minecraftVersion}-${environment}`);
+        if (featherBuild !== null || ravenBuild !== null || sparrowBuild !== null || nestsBuild !== null) {
+            lines.push("");
+            if (gen === "gen1") {
+                lines.push(`### <project root>/${environment}/gradle.properties`)
+                lines.push(`environment = ${environment}`)
             }
 
-            lines.push(`feather_build = ${featherBuild}`);
+            // the gen1 mod template uses a subproject structure
+            // similar properties can have the same name in different subprojects
+            const prefix = gen === "gen1" ? "" : `${environment}_`;
+
+            if (featherBuild !== null) {
+                lines.push(`feather_build = ${featherBuild}`);
+            }
             if (ravenBuild !== null) {
-                lines.push(`raven_build = ${ravenBuild}`);
-            } else {
-                addExtraMsg(`Raven is unavailable on the ${environment} for this Minecraft version - make sure to edit your build.gradle appropriately!`);
+                lines.push(`${prefix}raven_build = ${ravenBuild}`);
             }
             if (sparrowBuild !== null) {
-                lines.push(`sparrow_build = ${sparrowBuild}`);
-            } else {
-                addExtraMsg(`Sparrow is unavailable on the ${environment} for this Minecraft version - make sure to edit your build.gradle appropriately!`);
+                lines.push(`${prefix}sparrow_build = ${sparrowBuild}`);
             }
             if (nestsBuild !== null) {
-                lines.push(`nests_build = ${nestsBuild}`);
-            } else {
-                addExtraMsg(`Nests are unavailable on the ${environment} for this Minecraft version - make sure to edit your build.gradle appropriately!`);
+                lines.push(`${prefix}nests_build = ${nestsBuild}`);
             }
-
-            return lines;
         }
-
-        return [];
     }
 
     Object.entries(loaderSelectorRadios).forEach(([_, button]) => button.addEventListener("change", async _ => await updateOrnitheDependencies()));
