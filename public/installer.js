@@ -29,12 +29,17 @@
     }
 
     function getPlatform(){
-        var appVersion = navigator.userAgent;
-        if(appVersion.indexOf("Linux")!=-1 || appVersion.indexOf("X11")!=-1){
+        let platform;
+        if (navigator.userAgentData != null) {
+            platform = navigator.userAgentData.platform;
+        } else {
+            platform = navigator.platform;
+        }
+        if(platform.indexOf("Linux")!=-1 || platform.indexOf("X11")!=-1){
             return "linux-x86";
-        } else if(appVersion.indexOf("Win")!=-1){
+        } else if(platform.indexOf("Win")!=-1){
             return "windows-x86";
-        } else if(appVersion.indexOf("Mac")!=-1){
+        } else if(platform.indexOf("Mac")!=-1){
             return "macos-aarch64"
         }
         return "";
