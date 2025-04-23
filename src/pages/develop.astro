@@ -34,7 +34,12 @@ import Layout from "../layouts/Layout.astro";
 
       <fieldset id="calamus-gen-selectors">
         <legend>Select a Calamus (Intermediary) Generation</legend>
-        <input type="radio" id="generation-gen1" name="calamus-generation" checked />
+        <input
+          type="radio"
+          id="generation-gen1"
+          name="calamus-generation"
+          checked
+        />
         <label for="generation-gen1">Gen1</label>
 
         <input type="radio" id="generation-gen2" name="calamus-generation" />
@@ -52,6 +57,15 @@ import Layout from "../layouts/Layout.astro";
       <p>Paste these in gradle.properties in your project</p>
 
       <code id="ornithe-dependencies"> # Dependencies </code>
+      <code id="ornithe-dependencies-client" style="display: none;">
+        # Dependencies (client)
+      </code>
+      <code id="ornithe-dependencies-server" style="display: none;">
+        # Dependencies (server)
+      </code>
+      <code id="ornithe-dependencies-fmj" style="display: none;">
+        # Dependencies (fabric.mod.json)
+      </code>
       <p id="dependencies-extra-message"></p>
     </div>
   </main>
