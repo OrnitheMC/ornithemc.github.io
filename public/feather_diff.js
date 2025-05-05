@@ -10,15 +10,16 @@ import {
 import * as tiny from "./tiny_mappings.js";
 
 (async () => {
-  let minecraftStableVersions = await getMinecraftStableVersions("gen1");
-  let minecraftAllVersions = await getMinecraftVersions("gen1");
-
-  let possibleVersions;
-
   const genSelectorRadios = {
     gen1: document.getElementById("generation-gen1"),
     gen2: document.getElementById("generation-gen2")
   }
+
+  const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
+  let minecraftStableVersions = await getMinecraftStableVersions(gen);
+  let minecraftAllVersions = await getMinecraftVersions(gen);
+
+  let possibleVersions;
 
   const versionSelectorInput = document.getElementById("mc-version");
   const versionListElement = document.getElementById("version-list");
@@ -163,6 +164,7 @@ import * as tiny from "./tiny_mappings.js";
     minecraftAllVersions = await getMinecraftVersions(gen);
 
     updateVersionList();
+    await updateFeatherBuilds();
   })
 
   buildSourceElement.addEventListener(

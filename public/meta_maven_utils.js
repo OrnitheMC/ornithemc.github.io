@@ -158,6 +158,6 @@ export async function getFeatherBuildMaven(ornitheGen, version) {
             throw new Error("Invalid generation: " + ornitheGen);
         }
     }
-    const url = makeOrnitheMavenUrl(feather, version, "feather-" + version + "-tiny.gz");
+    const url = makeOrnitheMavenUrl(feather, version, feather + "-" + version + "-tiny.gz");
     return await fetch(url);
 }

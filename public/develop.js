@@ -10,18 +10,20 @@ import {
 } from "./meta_maven_utils.js";
 
 (async () => {
-    let minecraftStableVersions = await getMinecraftStableVersions("gen1");
-    let minecraftAllVersions = await getMinecraftVersions("gen1");
+    const genSelectorRadios = {
+      gen1: document.getElementById("generation-gen1"),
+      gen2: document.getElementById("generation-gen2")
+    }
+
+    const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
+    let minecraftStableVersions = await getMinecraftStableVersions(gen);
+    let minecraftAllVersions = await getMinecraftVersions(gen);
 
     let possibleVersions;
 
     const loaderSelectorRadios = {
         fabric: document.getElementById("mod-loader-fabric"),
         quilt: document.getElementById("mod-loader-quilt")
-    }
-    const genSelectorRadios = {
-        gen1: document.getElementById("generation-gen1"),
-        gen2: document.getElementById("generation-gen2")
     }
     document.getElementById("calamus-gen-selectors").addEventListener("change", async (e) => {
         const gen = Object.entries(genSelectorRadios).find(([_, button]) => button === e.target)[0];
