@@ -36,28 +36,37 @@
             platform = navigator.platform;
         }
         if(platform.indexOf("Linux")!=-1 || platform.indexOf("X11")!=-1){
-            return "linux-x86";
+            if (platform.indexOf("aarch64") != -1) {
+                return "linux-aarch64"
+            }
+            return "linux-x86_64";
         } else if(platform.indexOf("Win")!=-1){
-            return "windows-x86";
+            if (platform.indexOf("x86") != -1 && platform.indexOf("x86-64") == -1) {
+                return "windows-x86";
+            }
+            if (platform.indexOf("aarch64") != -1) {
+                return "windows-aarch64"
+            }
+            return "windows-x86_64"
         } else if(platform.indexOf("Mac")!=-1){
-            return "macos-aarch64"
+            return "macos-universal2"
         }
         return "";
     }
     
     function getPlatformName(platform){
-        if(platform == "linux-x86"){
-            return "Linux"
-        } else if(platform == "windows-x86"){
-            return "Windows"
-        } else if (platform == "macos-x64" || platform == "macos-aarch64"){
-            return "MacOS"
+        if(platform.startsWith("linux")){
+            return "Linux ("+platform.substring(6)+")"
+        } else if(platform.startsWith("windows")){
+            return "Windows ("+platform.substring(8)+")"
+        } else if (platform.startsWith("macos" )){
+            return "MacOS (Universal)"
         }
         return ""
     }
     
     function getPlatformExtension(platform){
-        if(platform == "windows-x86"){
+        if(platform.startsWith("windows")){
             return "exe"
         }
         return "bin"
