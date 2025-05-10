@@ -1,0 +1,112 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
+---
+
+<script type="module" src="/installer.js" defer></script>
+
+<Layout title="Download - OrnitheMC">
+  <main class="flex flex-col gap-4">
+    <h1>Download</h1>
+    <div id="platform-download" style="display: none;"></div>
+    <h2>Native Installer</h2>
+    <div id="latest-version-native" style="display: none;"></div>
+    <div class="flex flex-row flex-wrap gap-2">
+      <Button
+        title="Latest Version (Linux, x86_64)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/linux-x86_64?extension=bin"
+      />
+      <Button
+        title="Latest Version (Windows, x86_64)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/windows-x86_64?extension=exe"
+      />
+      <Button
+        title="Latest Version (MacOS, universal)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/macos-universal2?extension=bin"
+      />
+      <br />
+      <Button
+        title="Latest Version (Linux, aarch64)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/linux-aarch64?extension=bin"
+      />
+      <Button
+        title="Latest Version (Windows, x86)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/windows-x86?extension=exe"
+      />
+      <Button
+        title="Latest Version (Windows, aarch64)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/windows-aarch64?extension=exe"
+      />
+      <Button
+        title="Latest Version (MacOS, x86_64)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/macos-x86_64?extension=bin"
+      />
+      <Button
+        title="Latest Version (MacOS, aarch64)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/macos-aarch64?extension=bin"
+      />
+      <span class="italic">
+        The native installer includes a PrismLauncher/MultiMC instance creator &
+        Server bootstrap and supports both GUI and CLI use.
+      </span>
+    </div>
+    <details>
+      <summary><b>CLI-Only Version (Advanced)</b></summary>
+      <span class="italic">
+        The CLI-Only version is meant for more advanced users and automated
+        installations. Both versions include the same features.
+      </span>
+      <div class="flex flex-row flex-wrap gap-2">
+        <Button
+          title="Latest Version (Linux, x86_64)"
+          href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/linux-x86_64?extension=bin&classifier=cli"
+        />
+        <Button
+          title="Latest Version (Windows, x86_64)"
+          href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/windows-x86_64?extension=exe&classifier=cli"
+        />
+        <Button
+          title="Latest Version (MacOS, universal)"
+          href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/macos-universal2?extension=bin&classifier=cli"
+        />
+        <br />
+        <Button
+          title="Latest Version (Linux, aarch64)"
+          href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/linux-aarch64?extension=bin&classifier=cli"
+        />
+        <Button
+          title="Latest Version (Windows, x86)"
+          href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/windows-x86?extension=exe&classifier=cli"
+        />
+        <Button
+          title="Latest Version (Windows, aarch64)"
+          href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/windows-aarch64?extension=exe&classifier=cli"
+        />
+        <Button
+          title="Latest Version (MacOS, x86_64)"
+          href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/macos-x86_64?extension=bin&classifier=cli"
+        />
+        <Button
+          title="Latest Version (MacOS, aarch64)"
+          href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/macos-aarch64?extension=bin&classifier=cli"
+        />
+      </div>
+    </details>
+    <h2>Java-based Installer</h2>
+    <div id="latest-version-jar" style="display: none;"></div>
+    <div class="flex flex-row flex-wrap gap-2">
+      <Button
+        title="Latest Version (JAR)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer"
+      />
+      <Button
+        title="Latest Version (EXE)"
+        href="https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-native-bootstrap/windows-x86_64?extension=exe"
+      />
+    </div>
+    <span class="italic"
+      >The java-based installer includes a PrismLauncher/MultiMC instance
+      creator</span
+    >
+  </main>
+</Layout>
