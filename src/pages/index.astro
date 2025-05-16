@@ -7,21 +7,49 @@ import Button from "../components/Button.astro";
 
 <Layout title="OrnitheMC">
   <main class="flex flex-col gap-4">
-    <h1>OrnitheMC</h1>
-    <h2>About</h2>
     <span
-      >We're a project that aims to provide modding facilities through the
-      Fabric and Quilt toolchains to as many legacy Minecraft versions as
-      reasonably possible, while also providing extra tools to further enhance
-      the development experience for these versions. Currently we support
-      versions from rd-132211 to 1.14.4, including "non-final" minor releases,
-      snapshots, combat snapshots and April Fools versions released within this
-      range, with the goal of also supporting every discovered version archived
-      by Omniarchive within this range.</span
+      >Ornithe provides tooling and infrastructure to facilitate modding
+      ancient Minecraft versions.</span
     >
-    <h2>Downloads</h2>
+    <h1>Downloads</h1>
     <div id="latest-version-native" style="display: none;"></div>
     <div id="platform-download" style="display: none;"></div>
     <a href="/download">View all downloads</a>
+    <h1>About Us</h2>
+    <span
+      >Where FabricMC and QuiltMC keep up with the latest Minecraft versions,
+      Ornithe fills a void by enabling the use of the Fabric and Quilt mod
+      loaders on old Minecraft versions. On top of that, it provides other
+      tools to enhance the mod development process, ranging from high-quality
+      mappings to more obscure Java bytecode patches that aid developers in
+      understanding and working with the Minecraft codebase.</span
+    >
+    <span
+      >Ornithe supports a wide range of Minecraft versions, from the earliest
+      versions of the pre-classic era up to release 1.14.4, including snapshots
+      and April Fools versions. It aims to support all possible versions within
+      this range, even as once-lost versions are found and archived. This makes
+      Ornithe a powerful tool in uncovering and understanding the history of
+      Minecraft development.</span
+    >
+    <h1>The Ornithe Toolchain<h1>
+    <h3>Feather</h3>
+    <span
+      >A set of mappings that provides a consistent modding experience across a
+      wide range of Minecraft versions.</span
+    >
+    <h3>Ornithe Standard Libraries</h3>
+    <span
+      >A set of libraries that provides hooks and events for modding with
+      Ornithe.</span
+    >
+    <h3>Nester</h3>
+    <span
+      >A tool that patches inner class attributes in Java class files.</span
+    >
+    <h3>Signature Changer</h3>
+    <span
+      >A tool that patches generic type signatures in Java class files.</span
+    >
   </main>
 </Layout>
