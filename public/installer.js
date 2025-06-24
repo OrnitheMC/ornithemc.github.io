@@ -3,7 +3,7 @@
     let platform = getPlatform();
 
     if (platform != "") {
-        let html = "<a class=\"no-underline hover:underline\" href=\"https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/"+platform+"?extension="+getPlatformExtension(platform)+"\">"+
+        let html = "<a class=\"no-underline hover:underline\" style=\"display:inline-block\" href=\"https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/"+platform+"?extension="+getPlatformExtension(platform)+"\">"+
                         "<div class=\"bg-ornithe-button-bg w-fit p-2 px-4\">Download native installer for "+getPlatformName(platform)+"</div>"+
                     "</a>";
         downloadDiv.innerHTML = html;
