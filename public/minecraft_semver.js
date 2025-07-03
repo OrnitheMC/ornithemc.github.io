@@ -186,7 +186,7 @@ function normalizeVersion(name, release) {
             }
         }
     } else if ((matches = name.match(SNAPSHOT_PATTERN)) != null) {
-        name = "alpha." + matches[1] + matches[2] + matches[3];
+        name = "alpha." + matches[1] + "." + matches[2] + "." + matches[3];
     } else {
         // Try short-circuiting special versions which are complete on their own
         let ret = normalizeSpecialVersion(name);
