@@ -40,7 +40,7 @@ h2 {
 }
 
 h3 {
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: bold;
 }
 
@@ -75,6 +75,27 @@ select[class~="dark"] {
 
 div {
   scrollbar-color: var(--text-ornithe) var(--bg-o-transparent);
+}
+
+.main-section {
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+  border-top: 1px solid #D0D0D0;
+  padding-top: 15px;
+  margin-top: 10px;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.column {
+  flex: 1 1 0px;
+  margin: 10px;
+  padding: 20px;
+  border: 2px solid;
 }
 
 /*If someone could get a tailwind.css file working I'd be grateful. -worldwidepixel*/

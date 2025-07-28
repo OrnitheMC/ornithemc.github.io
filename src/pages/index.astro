@@ -7,49 +7,79 @@ import Button from "../components/Button.astro";
 
 <Layout title="OrnitheMC">
   <main class="flex flex-col gap-4">
-    <span
-      >Ornithe provides tooling and infrastructure to facilitate modding
-      ancient Minecraft versions.</span
-    >
-    <h1>Downloads</h1>
-    <div id="latest-version-native" style="display: none;"></div>
-    <div id="platform-download" style="display: none;"></div>
-    <a href="/download">View all downloads</a>
-    <h1>About Us</h2>
-    <span
-      >Where FabricMC and QuiltMC keep up with the latest Minecraft versions,
-      Ornithe fills a void by enabling the use of the Fabric and Quilt mod
-      loaders on old Minecraft versions. On top of that, it provides other
-      tools to enhance the mod development process, ranging from high-quality
-      mappings to more obscure Java bytecode patches that aid developers in
-      understanding and working with the Minecraft codebase.</span
-    >
-    <span
-      >Ornithe supports a wide range of Minecraft versions, from the earliest
-      versions of the pre-classic era up to release 1.14.4, including snapshots
-      and April Fools versions. It aims to support all possible versions within
-      this range, even as once-lost versions are found and archived. This makes
-      Ornithe a powerful tool in uncovering and understanding the history of
-      Minecraft development.</span
-    >
-    <h1>The Ornithe Toolchain<h1>
-    <h3>Feather</h3>
-    <span
-      >A set of mappings that provides a consistent modding experience across a
-      wide range of Minecraft versions.</span
-    >
-    <h3>Ornithe Standard Libraries</h3>
-    <span
-      >A set of libraries that provides hooks and events for modding with
-      Ornithe.</span
-    >
-    <h3>Nester</h3>
-    <span
-      >A tool that patches inner class attributes in Java class files.</span
-    >
-    <h3>Signature Changer</h3>
-    <span
-      >A tool that patches generic type signatures in Java class files.</span
-    >
+    <div id="subtitle">
+      Ornithe provides tooling and infrastructure to facilitate modding ancient
+      Minecraft versions.
+    </div>
+    <div id="downloads" class="main-section">
+      <h1>Downloads</h1>
+      <div id="latest-version-native" style="display: none;"></div>
+      <div id="platform-download" style="display: none;"></div>
+      <a href="/download">View all downloads</a>
+    </div>
+    <div id="about-us" class="main-section">
+      <h1>About Us</h2>
+      <p>
+        Where FabricMC and QuiltMC keep up with the latest Minecraft versions,
+        Ornithe fills a void by enabling the use of the Fabric and Quilt mod
+        loaders on old Minecraft versions. On top of that, it provides other
+        tools to enhance the mod development process, ranging from high-quality
+        mappings to more obscure Java bytecode patches that aid developers in
+        understanding and working with the Minecraft codebase.
+      </p>
+      <p>
+        Ornithe supports a wide range of Minecraft versions, from the earliest
+        versions of the pre-classic era up to release 1.14.4, including snapshots
+        and April Fools versions. It aims to support all possible versions within
+        this range, even as once-lost versions are found and archived. This makes
+        Ornithe a powerful tool in uncovering and understanding the history of
+        Minecraft development.
+      </p>
+    </div>
+    <div id="toolchain" class="main-section">
+      <h1>Toolchain</h1>
+      <div class="row">
+        <div class="column" style="background-color:#FAF0FA;border-color:#FAA0FA">
+          <h3>Feather</h3>
+          <span>
+            A set of mappings that provides a consistent modding experience across a
+            wide range of Minecraft versions.
+          </span>
+        </div>
+        <div class="column" style="background-color:#FFF0F0;border-color:#FFA0A0">
+          <h3>Ornithe Standard Libraries</h3>
+          <span>
+            A set of libraries that provides hooks and events for modding with
+            Ornithe.
+          </span>
+        </div>
+        <div class="column" style="background-color:#FFF8F0;border-color:#FACAA0"">
+          <h3>Ploceus</h3>
+          <span>
+            A Gradle plugin that configures Loom for Ornithe mod projects.
+          </span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="column" style="background-color:#FAF8F0;border-color:#FAF0C0"">
+          <h3>Nester</h3>
+          <span>
+            A tool that patches inner class attributes in Java class files.
+          </span>
+        </div>
+        <div class="column" style="background-color:#F0FAFA;border-color:#C0E0E0">
+          <h3>Signature Changer</h3>
+          <span>
+            A tool that patches generic type signatures in Java class files.
+          </span>
+        </div>
+        <div class="column" style="background-color:#F0F6FF;border-color:#A0C0F0">
+          <h3>Exceptor</h3>
+          <span>
+            A tool that patches throws clauses in Java class files.
+          </span>
+        </div>
+      </div>
+    </div>
   </main>
 </Layout>
