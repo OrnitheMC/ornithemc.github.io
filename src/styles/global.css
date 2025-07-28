@@ -19,6 +19,7 @@
     --bg-input: #e5e5e5;
     --bg-button: #93c5fd;
     --text-ornithe: #000000;
+    --tile-bg-lightness: 98%;
   }
   :root[class~="dark"] {
     --bg-ornithe: #000000;
@@ -26,6 +27,7 @@
     --bg-input: #171717;
     --bg-button: #172554;
     --text-ornithe: #ffffff;
+    --tile-bg-lightness: 5%;
   }
 }
 
@@ -96,6 +98,36 @@ div {
   margin: 10px;
   padding: 20px;
   border: 2px solid;
+}
+
+.purple-tile {
+  background-color: hsl(256, 100%, var(--tile-bg-lightness));
+  border-color: hsl(256, 100%, 85%)
+}
+
+.red-tile {
+  background-color: hsl(300, 100%, var(--tile-bg-lightness));
+  border-color: hsl(300, 100%, 85%)
+}
+
+.orange-tile {
+  background-color: hsl(32, 100%, var(--tile-bg-lightness));
+  border-color: hsl(32, 100%, 85%)
+}
+
+.yellow-tile {
+  background-color: hsl(69, 100%, var(--tile-bg-lightness));
+  border-color: hsl(69, 100%, 85%)
+}
+
+.green-tile {
+  background-color: hsl(128, 100%, var(--tile-bg-lightness));
+  border-color: hsl(128, 100%, 85%)
+}
+
+.blue-tile {
+  background-color: hsl(192, 100%, var(--tile-bg-lightness));
+  border-color: hsl(192, 100%, 85%)
 }
 
 /*If someone could get a tailwind.css file working I'd be grateful. -worldwidepixel*/
