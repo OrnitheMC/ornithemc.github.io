@@ -20,6 +20,7 @@
     --bg-button: #93c5fd;
     --text-ornithe: #000000;
     --tile-bg-lightness: 98%;
+    --tile-bd-lightness: 70%;
   }
   :root[class~="dark"] {
     --bg-ornithe: #000000;
@@ -28,6 +29,7 @@
     --bg-button: #172554;
     --text-ornithe: #ffffff;
     --tile-bg-lightness: 5%;
+    --tile-bd-lightness: 85%;
   }
 }
 
@@ -102,32 +104,32 @@ div {
 
 .purple-tile {
   background-color: hsl(256, 100%, var(--tile-bg-lightness));
-  border-color: hsl(256, 100%, 85%)
+  border-color: hsl(256, 100%, var(--tile-bd-lightness))
 }
 
 .red-tile {
   background-color: hsl(300, 100%, var(--tile-bg-lightness));
-  border-color: hsl(300, 100%, 85%)
+  border-color: hsl(300, 100%, var(--tile-bd-lightness))
 }
 
 .orange-tile {
   background-color: hsl(32, 100%, var(--tile-bg-lightness));
-  border-color: hsl(32, 100%, 85%)
+  border-color: hsl(32, 100%, var(--tile-bd-lightness))
 }
 
 .yellow-tile {
   background-color: hsl(69, 100%, var(--tile-bg-lightness));
-  border-color: hsl(69, 100%, 85%)
+  border-color: hsl(69, 100%, var(--tile-bd-lightness))
 }
 
 .green-tile {
   background-color: hsl(128, 100%, var(--tile-bg-lightness));
-  border-color: hsl(128, 100%, 85%)
+  border-color: hsl(128, 100%, var(--tile-bd-lightness))
 }
 
 .blue-tile {
   background-color: hsl(192, 100%, var(--tile-bg-lightness));
-  border-color: hsl(192, 100%, 85%)
+  border-color: hsl(192, 100%, var(--tile-bd-lightness))
 }
 
 /*If someone could get a tailwind.css file working I'd be grateful. -worldwidepixel*/
