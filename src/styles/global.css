@@ -118,8 +118,8 @@ div {
 }
 
 .orange-tile {
-  background-color: hsl(38, 100%, var(--tile-bg-lightness));
-  border-color: hsl(38, 100%, var(--tile-bd-lightness))
+  background-color: hsl(36, 100%, var(--tile-bg-lightness));
+  border-color: hsl(36, 100%, var(--tile-bd-lightness))
 }
 
 .yellow-tile {
@@ -138,13 +138,13 @@ div {
 }
 
 .cyan-tile {
-  background-color: hsl(158, 100%, var(--tile-bg-lightness));
-  border-color: hsl(158, 100%, var(--tile-bd-lightness))
+  background-color: hsl(160, 100%, var(--tile-bg-lightness));
+  border-color: hsl(160, 100%, var(--tile-bd-lightness))
 }
 
 .blue-tile {
-  background-color: hsl(192, 100%, var(--tile-bg-lightness));
-  border-color: hsl(192, 100%, var(--tile-bd-lightness))
+  background-color: hsl(196, 100%, var(--tile-bg-lightness));
+  border-color: hsl(196, 100%, var(--tile-bd-lightness))
 }
 
 /*If someone could get a tailwind.css file working I'd be grateful. -worldwidepixel*/
