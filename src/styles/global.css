@@ -103,38 +103,48 @@ div {
 }
 
 .purple-tile {
-  background-color: hsl(256, 100%, var(--tile-bg-lightness));
-  border-color: hsl(256, 100%, var(--tile-bd-lightness))
+  background-color: hsl(266, 100%, var(--tile-bg-lightness));
+  border-color: hsl(266, 100%, var(--tile-bd-lightness))
 }
 
 .magenta-tile {
-  background-color: hsl(290, 100%, var(--tile-bg-lightness));
-  border-color: hsl(290, 100%, var(--tile-bd-lightness))
+  background-color: hsl(284, 100%, var(--tile-bg-lightness));
+  border-color: hsl(284, 100%, var(--tile-bd-lightness))
+}
+
+.fuchsia-tile {
+  background-color: hsl(326, 100%, var(--tile-bg-lightness));
+  border-color: hsl(326, 100%, var(--tile-bd-lightness))
 }
 
 .red-tile {
-  background-color: hsl(0, 100%, var(--tile-bg-lightness));
-  border-color: hsl(0, 100%, var(--tile-bd-lightness))
+  background-color: hsl(355, 100%, var(--tile-bg-lightness));
+  border-color: hsl(355, 100%, var(--tile-bd-lightness))
 }
 
 .orange-tile {
-  background-color: hsl(36, 100%, var(--tile-bg-lightness));
-  border-color: hsl(36, 100%, var(--tile-bd-lightness))
+  background-color: hsl(28, 100%, var(--tile-bg-lightness));
+  border-color: hsl(28, 100%, var(--tile-bd-lightness))
+}
+
+.amber-tile {
+  background-color: hsl(50, 100%, var(--tile-bg-lightness));
+  border-color: hsl(50, 100%, var(--tile-bd-lightness))
 }
 
 .yellow-tile {
-  background-color: hsl(54, 100%, var(--tile-bg-lightness));
-  border-color: hsl(54, 100%, var(--tile-bd-lightness))
+  background-color: hsl(66, 100%, var(--tile-bg-lightness));
+  border-color: hsl(66, 100%, var(--tile-bd-lightness))
 }
 
 .lime-tile {
-  background-color: hsl(84, 100%, var(--tile-bg-lightness));
-  border-color: hsl(84, 100%, var(--tile-bd-lightness))
+  background-color: hsl(82, 100%, var(--tile-bg-lightness));
+  border-color: hsl(82, 100%, var(--tile-bd-lightness))
 }
 
 .green-tile {
-  background-color: hsl(128, 100%, var(--tile-bg-lightness));
-  border-color: hsl(128, 100%, var(--tile-bd-lightness))
+  background-color: hsl(136, 100%, var(--tile-bg-lightness));
+  border-color: hsl(136, 100%, var(--tile-bd-lightness))
 }
 
 .cyan-tile {
@@ -142,9 +152,14 @@ div {
   border-color: hsl(160, 100%, var(--tile-bd-lightness))
 }
 
-.blue-tile {
+.light-blue-tile {
   background-color: hsl(196, 100%, var(--tile-bg-lightness));
   border-color: hsl(196, 100%, var(--tile-bd-lightness))
+}
+
+.dark-blue-tile {
+  background-color: hsl(240, 100%, var(--tile-bg-lightness));
+  border-color: hsl(240, 100%, var(--tile-bd-lightness))
 }
 
 /*If someone could get a tailwind.css file working I'd be grateful. -worldwidepixel*/
