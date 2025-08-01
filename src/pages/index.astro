@@ -33,16 +33,26 @@ import Button from "../components/Button.astro";
         patches</b> to clean up even heavily obfuscated versions.
       </p>
     </div>
-    <div id="toolchain" class="main-section">
-      <h1>Toolchain</h1>
+    <div id="libraries" class="main-section">
+      <h1>Libraries</h1>
       <div class="row">
         <div class="column purple-tile">
           <h3>Ornithe Standard Libraries</h3>
           <span>
-            A set of libraries that provides hooks and events for modding with
-            Ornithe.
+            A light-weight library of APIs that provides hooks and events for
+            modding withOrnithe.
           </span>
         </div>
+        <div class="column empty-tile">
+        </div>
+        <div class="column empty-tile">
+        </div>
+      </div>
+    </div>
+    <div id="toolchain" class="main-section">
+      <h1>Toolchain</h1>
+      <h2>Core Projects</h2>
+      <div class="row">
         <div class="column magenta-tile">
           <h3>Feather</h3>
           <span>
@@ -56,14 +66,15 @@ import Button from "../components/Button.astro";
             An intermediate mapping layer that enables cross-version mod compatibility.
           </span>
         </div>
-      </div>
-      <div class="row">
         <div class="column red-tile">
           <h3>Ploceus</h3>
           <span>
             A Gradle plugin that configures Loom for Ornithe mod projects.
           </span>
         </div>
+      </div>
+      <h2>Other Projects</h2>
+      <div class="row">
         <div class="column orange-tile">
           <h3>Nests</h3>
           <span>
@@ -76,14 +87,14 @@ import Button from "../components/Button.astro";
             Patches for modifying generic type signatures in Java class files.
           </span>
         </div>
-      </div>
-      <div class="row">
         <div class="column yellow-tile">
           <h3>Raven</h3>
           <span>
             Patches for throws clauses in method declarations in Java class files.
           </span>
         </div>
+      </div>
+      <div class="row">
         <div class="column lime-tile">
           <h3>Nester</h3>
           <span>
@@ -96,14 +107,14 @@ import Button from "../components/Button.astro";
             A tool that patches generic type signatures in Java class files.
           </span>
         </div>
-      </div>
-      <div class="row">
         <div class="column cyan-tile">
           <h3>Exceptor</h3>
           <span>
             A tool that patches throws clauses in method declarations in Java class files.
           </span>
         </div>
+      </div>
+      <div class="row">
         <div class="column light-blue-tile">
           <h3>Condor</h3>
           <span>
@@ -115,6 +126,8 @@ import Button from "../components/Button.astro";
           <span>
             Miscellaneous de-obfuscation patches for Java class files.
           </span>
+        </div>
+        <div class="column empty-tile">
         </div>
       </div>
     </div>

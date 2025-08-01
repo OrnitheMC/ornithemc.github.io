@@ -102,6 +102,10 @@ div {
   border: 2px solid;
 }
 
+.empty-tile {
+  border-style: none;
+}
+
 .purple-tile {
   background-color: hsl(266, 100%, var(--tile-bg-lightness));
   border-color: hsl(266, 100%, var(--tile-bd-lightness))
