@@ -7,21 +7,138 @@ import Button from "../components/Button.astro";
 
 <Layout title="OrnitheMC">
   <main class="flex flex-col gap-4">
-    <h1>OrnitheMC</h1>
-    <h2>About</h2>
-    <span
-      >We're a project that aims to provide modding facilities through the
-      Fabric and Quilt toolchains to as many legacy Minecraft versions as
-      reasonably possible, while also providing extra tools to further enhance
-      the development experience for these versions. Currently we support
-      versions from rd-132211 to 1.14.4, including "non-final" minor releases,
-      snapshots, combat snapshots and April Fools versions released within this
-      range, with the goal of also supporting every discovered version archived
-      by Omniarchive within this range.</span
-    >
-    <h2>Downloads</h2>
-    <div id="latest-version-native" style="display: none;"></div>
-    <div id="platform-download" style="display: none;"></div>
-    <a href="/download">View all downloads</a>
+    <div id="subtitle">
+      Ornithe provides tooling and infrastructure to facilitate modding ancient
+      Minecraft versions.
+    </div>
+    <div id="downloads" class="main-section">
+      <h1>Downloads</h1>
+      <div id="latest-version-native" style="display: none;"></div>
+      <div id="platform-download" style="display: none;"></div>
+      <a href="/download">View all downloads</a>
+    </div>
+    <div id="about-us" class="main-section">
+      <h1>About Us</h2>
+      <p>
+        The Ornithe Project enables the use of the <b>Fabric</b> and <b>Quilt</b> mod
+        loaders on old Minecraft versions, from the earliest versions of the
+        <b>pre-classic</b> era up to release <b>1.14.4</b>. We aim to support all
+        possible versions within this range, even as once-lost versions are found and
+        archived.
+      </p>
+      <p>
+        Ornithe offers <b>high-quality mappings</b> and a <b>light-weight library of
+        APIs</b>, ensuring a consistent modding experience across the range of
+        supported Minecraft versions. We also offer more obscure <b>Java bytecode
+        patches</b> to clean up even heavily obfuscated versions.
+      </p>
+    </div>
+    <div id="libraries" class="main-section">
+      <h1>Libraries</h1>
+      <div class="row">
+        <div class="column purple-tile">
+          <h3>Ornithe Standard Libraries</h3>
+          <span>
+            A light-weight library of APIs that provides hooks and events for
+            modding with Ornithe.
+          </span>
+        </div>
+        <div class="column empty-tile">
+        </div>
+        <div class="column empty-tile">
+        </div>
+      </div>
+    </div>
+    <div id="toolchain" class="main-section">
+      <h1>Toolchain</h1>
+      <h2>Core Projects</h2>
+      <div class="row">
+        <div class="column magenta-tile">
+          <h3>Feather</h3>
+          <span>
+            A set of mappings that provides a consistent modding experience across
+            a wide range of Minecraft versions.
+          </span>
+        </div>
+        <div class="column fuchsia-tile">
+          <h3>Calamus</h3>
+          <span>
+            An intermediate mapping layer that enables cross-version mod compatibility.
+          </span>
+        </div>
+        <div class="column red-tile">
+          <h3>Ploceus</h3>
+          <span>
+            A Gradle plugin that configures Loom for Ornithe mod projects.
+          </span>
+        </div>
+      </div>
+      <h2>Other Projects</h2>
+      <div class="row">
+        <div class="column orange-tile">
+          <h3>Nests</h3>
+          <span>
+            Patches for modifying inner class attributes in Java class files.
+          </span>
+        </div>
+        <div class="column amber-tile">
+          <h3>Sparrow</h3>
+          <span>
+            Patches for modifying generic type signatures in Java class files.
+          </span>
+        </div>
+        <div class="column yellow-tile">
+          <h3>Raven</h3>
+          <span>
+            Patches for throws clauses in method declarations in Java class files.
+          </span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="column lime-tile">
+          <h3>Nester</h3>
+          <span>
+            A tool that patches inner class attributes in Java class files.
+          </span>
+        </div>
+        <div class="column green-tile">
+          <h3>Signature Changer</h3>
+          <span>
+            A tool that patches generic type signatures in Java class files.
+          </span>
+        </div>
+        <div class="column cyan-tile">
+          <h3>Exceptor</h3>
+          <span>
+            A tool that patches throws clauses in method declarations in Java class files.
+          </span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="column light-blue-tile">
+          <h3>Condor</h3>
+          <span>
+            A local variable table generator for Java class files.
+          </span>
+        </div>
+        <div class="column dark-blue-tile">
+          <h3>Preen</h3>
+          <span>
+            Miscellaneous de-obfuscation patches for Java class files.
+          </span>
+        </div>
+        <div class="column empty-tile">
+        </div>
+      </div>
+    </div>
+    <div>
+    </div>
+    <div>
+    </div>
+    <div>
+      <small>
+        NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.
+      </small>
+    </div>
   </main>
 </Layout>
