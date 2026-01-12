@@ -9,7 +9,7 @@ import {
     getLatestNestsBuild
 } from "./meta_maven_utils.js";
 
-import { getMinecraftSemverVersion } from "./minecraft_semver.js";
+import { normalizeMinecraftVersion } from "./minecraft_semver.js";
 
 (async () => {
     const genSelectorRadios = {
@@ -118,7 +118,7 @@ import { getMinecraftSemverVersion } from "./minecraft_semver.js";
     }
 
     async function getFmjDependenciesNote(minecraftVersion) {
-        let version = await getMinecraftSemverVersion(minecraftVersion);
+        let version = await normalizeMinecraftVersion(minecraftVersion);
 
         let text = ["### fabric.mod.json "];
         text.push(`"minecraft": "${version}"`);
