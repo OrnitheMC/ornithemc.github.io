@@ -21,37 +21,37 @@ async function getVersionsFromMeta(...pathComponents) {
     return response;
 }
 
-async function getVersionsWithGenFromMeta(ornitheGen, ...pathComponents) {
-    let response = await getVersionsFromMeta(ornitheGen, ...pathComponents);
+async function getVersionsWithGenFromMeta(intermediaryGen, ...pathComponents) {
+    let response = await getVersionsFromMeta(intermediaryGen, ...pathComponents);
     return response;
 }
 
-async function getMinecraftVersionsMeta(ornitheGen) {
-    return await getVersionsWithGenFromMeta(ornitheGen, "game");
+async function getMinecraftVersionsMeta(intermediaryGen) {
+    return await getVersionsWithGenFromMeta(intermediaryGen, "game");
 }
 
-export async function getFeatherVersionMeta(ornitheGen, mcVersion) {
-    return await getVersionsWithGenFromMeta(ornitheGen, "feather", mcVersion);
+export async function getFeatherVersionMeta(intermediaryGen, sidedMcVersion) {
+    return await getVersionsWithGenFromMeta(intermediaryGen, "feather", sidedMcVersion);
 }
 
-async function getRavenVersionMeta(mcVersion) {
-    return await getVersionsFromMeta("raven", mcVersion);
+async function getRavenVersionMeta(sidedMcVersion) {
+    return await getVersionsFromMeta("raven", sidedMcVersion);
 }
 
-async function getSparrowVersionMeta(mcVersion) {
-    return await getVersionsFromMeta("sparrow", mcVersion);
+async function getSparrowVersionMeta(sidedMcVersion) {
+    return await getVersionsFromMeta("sparrow", sidedMcVersion);
 }
 
-async function getNestsVersionMeta(mcVersion) {
-    return await getVersionsFromMeta("nests", mcVersion);
+async function getNestsVersionMeta(sidedMcVersion) {
+    return await getVersionsFromMeta("nests", sidedMcVersion);
 }
 
 async function getLoaderVersionsMeta(loader) {
     return await getVersionsFromMeta(loader + "-loader");
 }
 
-async function getOslVersionsMeta() {
-    return await getVersionsFromMeta("osl");
+async function getOslVersionsMeta(intermediaryGen) {
+    return await getVersionsWithGenFromMeta(intermediaryGen, "osl");
 }
 
 function compareVersion(sv1, sv2) {
@@ -71,19 +71,27 @@ function compareVersion(sv1, sv2) {
     return rec(sv1.split("."), sv2.split("."));
 }
 
-export async function getMinecraftVersions(gen) {
-    return await getMinecraftVersionsMeta(gen)
+export async function getMinecraftVersions(intermediaryGen) {
+    return await getMinecraftVersionsMeta(intermediaryGen)
         .then(l => l.map(v => v.version));
 }
 
-export async function getMinecraftStableVersions(gen) {
-    return await getMinecraftVersionsMeta(gen)
+export async function getMinecraftStableVersions(intermediaryGen) {
+    return await getMinecraftVersionsMeta(intermediaryGen)
         .then(l => l.filter(v => v.stable))
         .then(l => l.map(v => v.version));
 }
 
-export async function getLatestFeatherBuild(gen, mcVersion) {
-    return await getFeatherVersionMeta(gen, mcVersion)
+export async function getLatestFeatherBuilds(intermediaryGen, minecraftVersion) {
+    return {
+        merged: (intermediaryGen == "gen1" && !minecraftVersion.sharedMappings) ? null : await getLatestFeatherBuild(intermediaryGen, minecraftVersion.id),
+        client: (intermediaryGen != "gen1" || minecraftVersion.sharedMappings || !minecraftVersion.client) ? null : await getLatestFeatherBuild(intermediaryGen, `${minecraftVersion.id}-client`),
+        server: (intermediaryGen != "gen1" || minecraftVersion.sharedMappings || !minecraftVersion.server) ? null : await getLatestFeatherBuild(intermediaryGen, `${minecraftVersion.id}-server`)
+    };
+}
+
+export async function getLatestFeatherBuild(intermediaryGen, sidedMcVersion) {
+    return await getFeatherVersionMeta(intermediaryGen, sidedMcVersion)
         .then(l => l.sort((e1, e2) => e2.build - e1.build))
         .then(s => {
             console.log(s);
@@ -93,36 +101,66 @@ export async function getLatestFeatherBuild(gen, mcVersion) {
         .then(e => e !== undefined ? e.build : null);
 }
 
-export async function getLatestRavenBuild(mcVersion) {
-    return await getRavenVersionMeta(mcVersion)
+export async function getLatestRavenBuilds(minecraftVersion) {
+    const sharedVersioning = isSharedVersioning(minecraftVersion);
+
+    return {
+        merged: (sharedVersioning && !minecraftVersion.sharedMappings) ? null : await getLatestRavenBuild(minecraftVersion.id),
+        client: (!sharedVersioning || minecraftVersion.sharedMappings || !minecraftVersion.client) ? null : await getLatestRavenBuild(`${minecraftVersion.id}-client`),
+        server: (!sharedVersioning || minecraftVersion.sharedMappings || !minecraftVersion.server) ? null : await getLatestRavenBuild(`${minecraftVersion.id}-server`)
+    };
+}
+
+export async function getLatestRavenBuild(sidedMcVersion) {
+    return await getRavenVersionMeta(sidedMcVersion)
         .then(l => l.sort((e1, e2) => e2.build - e1.build))
         .then(([head, ..._]) => head)
         .then(e => e !== undefined ? e.build : null);
 }
 
-export async function getLatestSparrowBuild(mcVersion) {
-    return await getSparrowVersionMeta(mcVersion)
+export async function getLatestSparrowBuilds(minecraftVersion) {
+    const sharedVersioning = isSharedVersioning(minecraftVersion);
+
+    return {
+        merged: (sharedVersioning && !minecraftVersion.sharedMappings) ? null : await getLatestSparrowBuild(minecraftVersion.id),
+        client: (!sharedVersioning || minecraftVersion.sharedMappings || !minecraftVersion.client) ? null : await getLatestSparrowBuild(`${minecraftVersion.id}-client`),
+        server: (!sharedVersioning || minecraftVersion.sharedMappings || !minecraftVersion.server) ? null : await getLatestSparrowBuild(`${minecraftVersion.id}-server`)
+    };
+}
+
+export async function getLatestSparrowBuild(sidedMcVersion) {
+    return await getSparrowVersionMeta(sidedMcVersion)
         .then(l => l.sort((e1, e2) => e2.build - e1.build))
         .then(([head, ..._]) => head)
         .then(e => e !== undefined ? e.build : null);
 }
 
-export async function getLatestNestsBuild(mcVersion) {
-    return await getNestsVersionMeta(mcVersion)
+export async function getLatestNestsBuilds(minecraftVersion) {
+    const sharedVersioning = isSharedVersioning(minecraftVersion);
+
+    return {
+        merged: (sharedVersioning && !minecraftVersion.sharedMappings) ? null : await getLatestNestsBuild(minecraftVersion.id),
+        client: (!sharedVersioning || minecraftVersion.sharedMappings || !minecraftVersion.client) ? null : await getLatestNestsBuild(`${minecraftVersion.id}-client`),
+        server: (!sharedVersioning || minecraftVersion.sharedMappings || !minecraftVersion.server) ? null : await getLatestNestsBuild(`${minecraftVersion.id}-server`)
+    };
+}
+
+export async function getLatestNestsBuild(sidedMcVersion) {
+    return await getNestsVersionMeta(sidedMcVersion)
         .then(l => l.sort((e1, e2) => e2.build - e1.build))
         .then(([head, ..._]) => head)
         .then(e => e !== undefined ? e.build : null);
 }
 
-export async function getLatestLoader(loader) {
+export async function getLatestLoaderVersion(loader) {
     return await getLoaderVersionsMeta(loader)
         .then(l => l.filter(e => e.stable))
         .then(([head, ..._]) => head)
         .then(e => e.version);
 }
 
-export async function getLatestOsl() {
-    return await getOslVersionsMeta()
+export async function getLatestOslVersion(intermediaryGen) {
+    return await getOslVersionsMeta(intermediaryGen)
         .then(l => l.sort((e1, e2) => compareVersion(e1.version, e2.version)))
         .then(([head, ..._]) => head)
         .then(e => e.version);
@@ -143,9 +181,9 @@ function makeOrnitheMavenUrl(...pathComponents) {
     return makeMavenUrl("net/ornithemc", ...pathComponents);
 }
 
-export async function getFeatherBuildMaven(ornitheGen, version) {
+export async function getFeatherBuildMaven(intermediaryGen, sidedMcVersion) {
     let feather;
-    switch (ornitheGen) {
+    switch (intermediaryGen) {
         case "gen1": {
             feather = "feather";
             break;
@@ -155,9 +193,22 @@ export async function getFeatherBuildMaven(ornitheGen, version) {
             break;
         }
         default: {
-            throw new Error("Invalid generation: " + ornitheGen);
+            throw new Error("Invalid generation: " + intermediaryGen);
         }
     }
-    const url = makeOrnitheMavenUrl(feather, version, feather + "-" + version + "-tiny.gz");
+    const url = makeOrnitheMavenUrl(feather, sidedMcVersion, feather + "-" + sidedMcVersion + "-tiny.gz");
     return await fetch(url);
+}
+
+const MANIFEST = URL + "/mc-versions"
+
+export async function getVersionDetails(intermediaryGen, minecraftVersion) {
+    const url = "https://" + MANIFEST + "/" + intermediaryGen + "/version/" + minecraftVersion + ".json";
+    const response = await fetch(url);
+    return response.json();
+}
+
+export function isSharedVersioning(minecraftVersion) {
+    const fc = minecraftVersion.id.charAt(0);
+    return !(fc == 'r' || fc == 'p' || fc == 'c' || fc == 'i' || fc == 'a' || fc == 's');
 }
