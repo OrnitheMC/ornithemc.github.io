@@ -397,15 +397,13 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
     }
 
     async function displayProjectProperties(minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion) {
-        const sharedVersioning = isSharedVersioning(minecraftVersion);
         const elementId = "gradle.properties.content";
-        
         const lines = [];
 
         lines.push(`minecraft_version = ${minecraftVersion.id}`);
         lines.push(`loader_version = ${loaderVersion}`);
         lines.push("");
-        if (sharedVersioning) {
+        if (featherBuilds.merged != null) {
             lines.push(`feather_build = ${featherBuilds.merged}`);
         } else {
             lines.push(`feather_build = ${minecraftVersion.client ? featherBuilds.client : featherBuilds.server}`);
