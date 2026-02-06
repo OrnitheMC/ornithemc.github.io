@@ -509,11 +509,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
 
         lines.push(`{`);
         lines.push(`\t"depends": {`);
-        lines.push(`\t\t"fabricloader": ">=${loaderVersion}"`);
         lines.push(`\t\t"minecraft": "${normalizedVersion}"`);
-        if (oslVersion != null) {
-            lines.push(`\t\t"osl": ">=${oslVersion}"`);
-        }
         lines.push(`\t}`);
         lines.push(`}`);
         
@@ -533,19 +529,9 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         lines.push(`\t"quilt_loader" {`);
         lines.push(`\t\t"depends": [`);
         lines.push(`\t\t\t{`);
-        lines.push(`\t\t\t\t"id": "quilt_loader"`);
-        lines.push(`\t\t\t\t"versions": ">=${loaderVersion}"`);
-        lines.push(`\t\t\t},`);
-        lines.push(`\t\t\t{`);
         lines.push(`\t\t\t\t"id": "minecraft"`);
         lines.push(`\t\t\t\t"versions": "${normalizedVersion}"`);
-        lines.push(`\t\t\t}${oslVersion == null ? "" : ","}`);
-        if (oslVersion != null) {
-            lines.push(`\t\t\t{`);
-            lines.push(`\t\t\t\t"id": "osl"`);
-            lines.push(`\t\t\t\t"versions": ">=${oslVersion}"`);
-            lines.push(`\t\t\t}`);
-        }
+        lines.push(`\t\t\t}`);
         lines.push(`\t\t]`);
         lines.push(`\t}`);
         lines.push(`}`);
