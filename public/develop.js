@@ -467,6 +467,9 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         } else {
             elementId = `${project}.gradle.properties.content`;
 
+            lines.push(`environment = ${project}`);
+            lines.push("");
+
             if (project == "client") {
                 lines.push(`feather_build = ${featherBuilds.client}`);
                 if (ravenBuilds.client != null) {
