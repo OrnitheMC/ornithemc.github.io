@@ -394,7 +394,8 @@ function normalizeReleaseOrOldVersion(version) {
                 prepl.push(".0");
             }
 
-            prepl.push('.').push(trail);
+            prepl.push('.');
+            prepl.push(trail);
         }
     } else if ((matches = matchExact(version, ALPHA_PATTERN)) != null) { // Alpha v1.0.1, Alpha 1.0.1_01, a1.1.0-131933, a1.2.3_05, Alpha 0.1.0, a0.2.8
         let trail = matches[2];
@@ -407,7 +408,8 @@ function normalizeReleaseOrOldVersion(version) {
         // in the launcher manifest, some Alpha versions have
         // trailing alphabetic chars
         if (trail != null) {
-            prepl.push('.').push(trail);
+            prepl.push('.');
+            prepl.push(trail);
         }
     } else if ((matches = matchExact(version, INDEV_PATTERN)) != null) { // Indev 0.31 200100110, in-20100124-2310, Infdev 0.31 20100227-1433, inf-20100611
         let date = matches[1];
@@ -416,17 +418,20 @@ function normalizeReleaseOrOldVersion(version) {
 
         prepl.push("0.31.");
         prepl.push(date);
-        if (time != null) prepl.push('-').push(time);
+        if (time != null) {
+            prepl.push('-');
+            prepl.push(time);
+        }
     } else if ((matches = matchExact(version, EARLY_CLASSIC_PATTERN)) != null // c0.0.11a, c0.0.17a-2014, 0.0.18a_02
             || (matches = matchExact(version, LATE_CLASSIC_PATTERN)) != null) { // c0.24_st, 0.24_st_03, 0.25_st-1658, c0.25_05_st, 0.29, c0.30-s, 0.30-c-renew
-        let late = LATE_CLASSIC_PATTERN.matcher(version).matches();
+        let late = matchExact(version, LATE_CLASSIC_PATTERN) != null;
 
         let minor = matches[1];
         let patch = matches[2];
         let trail = late ? matches[4] : null;
         let type = late ? matches[5] : null;
-        timestamp = matches.group(late ? 6 : 3);
-        suffix = matches.group(late ? 7 : 4);
+        timestamp = matches[late ? 6 : 3];
+        suffix = matches[late ? 7 : 4];
 
         // in late classic, sometimes the patch number appears before
         // the survival test identifier (_st), and sometimes after it
@@ -436,11 +441,20 @@ function normalizeReleaseOrOldVersion(version) {
 
         prepl.push("0.");
         prepl.push(minor);
-        if (patch != null) prepl.push('.').push(patch);
+        if (patch != null) {
+            prepl.push('.');
+            prepl.push(patch);
+        }
         // in the launcher manifest, some Classic versions have trailing alphabetic chars
-        if (trail != null) prepl.push('-').push(trail);
+        if (trail != null) {
+            prepl.push('-');
+            prepl.push(trail);
+        }
         // in the Omniarchive manifest, some classic versions releases for creative and survival
-        if (type != null) prepl.push('-').push(type);
+        if (type != null) {
+            prepl.push('-');
+            prepl.push(type);
+        }
     } else if ((matches = matchExact(version, CLASSIC_SERVER_PATTERN)) != null) {
         let release = matches[1];
         timestamp = matches[2];
@@ -452,7 +466,7 @@ function normalizeReleaseOrOldVersion(version) {
         suffix = matches[2];
 
         // account for a weird exception to the pre-classic versioning scheme
-        if ("20090515".equals(build)) {
+        if (build == "20090515") {
             build = "150000";
         }
 
