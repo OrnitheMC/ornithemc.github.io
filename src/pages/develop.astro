@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
 ---
 
 <script type="module" src="/develop.js" defer></script>
@@ -8,65 +9,133 @@ import Layout from "../layouts/Layout.astro";
   <main class="flex flex-col gap-4">
     <!-- Familiar, eh? -wwp -->
     <h1>Develop</h1>
-    <h2>Getting started</h2>
-    <p>
-      If you are updating the Loom or Ploceus version in <code
-        >build.gradle</code
-      > file, make sure their version match (example, Ploceus of version <code
-        >1.10-SNAPSHOT</code
-      > needs Loom to be of version <code>1.10-SNAPSHOT</code> as well)
-    </p>
-    <h2>Latest versions</h2>
-    <div class="flex flex-col gap-2 items-start">
-      <fieldset>
-        <input type="checkbox" id="allow-snapshots" />
-        <label for="allow-snapshots">Include Snapshots</label>
-      </fieldset>
+    <div id="subtitle">
+      This page provides resources to help mod developers create and maintain their projects.
+    </div>
+    <div id="links" class="main-section">
+      <div class="row">
+        <div class="column">
+          <h2>Getting started</h2>
+          <span>
+            The wiki provides information on how to create mods
+            as well as detailed looks into mod development tools.
+          </span>
+          <br/><br/>
+          <Button
+            title = "Ornithe Wiki"
+            href = "https://wiki.ornithemc.net"
+          />
+        </div>
 
-      <fieldset>
-        <legend>Select a ModLoader</legend>
-        <input type="radio" id="mod-loader-fabric" name="modLoader" checked />
-        <label for="mod-loader-fabric">Fabric</label>
+        <div class="column tile empty-tile"></div>
 
-        <input type="radio" id="mod-loader-quilt" name="modLoader" />
-        <label for="mod-loader-quilt">Quilt</label>
-      </fieldset>
+        <div class="column">
+          <h2>Project templates</h2>
+          <span>
+            The mod templates are curated starting points for
+            Ornithe mod development projects.
+          </span>
+          <br/><br/>
+          <Button
+            title = "Ornithe Mod Template"
+            href = "https://github.com/OrnitheMC/ornithe-mod-template"
+          />
+        </div>
+      </div>
+    </div>
+    <div id="versions" class="main-section">
+      <div class="flex flex-col gap-2 items-start">
+        <h2>Latest versions</h2>
+        <label for="mc-version">Select a Minecraft version</label>
+        <input type="text" id="mc-version" list="version-list" value="1.7.2" />
+        <datalist id="version-list">
+          <option value="1.7.2"></option>
+          <!-- DO NOT INSERT ANYTHING HERE -->
+          <!-- Data here will be inserted by JavaScript -->
+        </datalist>
+        
+        <fieldset id="mod-loader-selectors">
+          <legend>Select a mod loader</legend>
+          <input type="radio" id="mod-loader-fabric" name="modLoader" checked />
+          <label for="mod-loader-fabric">Fabric</label>
 
-      <fieldset id="calamus-gen-selectors">
-        <legend>Select a Calamus (Intermediary) Generation</legend>
-        <input
-          type="radio"
-          id="generation-gen1"
-          name="calamus-generation"
-          checked
-        />
-        <label for="generation-gen1">Gen1</label>
+          <input type="radio" id="mod-loader-quilt" name="modLoader" />
+          <label for="mod-loader-quilt">Quilt</label>
+        </fieldset>
 
-        <input type="radio" id="generation-gen2" name="calamus-generation" />
-        <label for="generation-gen2">Gen2</label>
-      </fieldset>
+        <fieldset id="calamus-gen-selectors">
+          <legend>Select a Calamus (intermediary) generation</legend>
+          <input
+            type="radio"
+            id="generation-gen1"
+            name="calamus-generation"
+            checked
+          />
+          <label for="generation-gen1">Gen1</label>
 
-      <label for="mc-version">Game version</label>
-      <input type="text" id="mc-version" list="version-list" value="1.7.2" />
-      <datalist id="version-list">
-        <option value="1.7.2"></option>
-        <!-- DO NOT INSERT ANYTHING HERE -->
-        <!-- Data here will be inserted by JavaScript -->
-      </datalist>
+          <input type="radio" id="generation-gen2" name="calamus-generation" />
+          <label for="generation-gen2">Gen2</label>
+        </fieldset>
+      </div>
+      <div>
+      </div>
+      <div>
+      </div>
+      <div class="row">
+        <div class="column">
+          <h3>Project properties</h3>
+          <br/>
+          <div id="gradle.properties">
+            <code>./gradle.properties</code>
+            <pre class="code-block" id="gradle.properties.content"></pre>
+          </div>
+          <br/>
+          <div id="client.gradle.properties">
+            <code>./client/gradle.properties</code>
+            <pre class="code-block" id="client.gradle.properties.content"></pre>
+          </div>
+          <br/>
+          <div id="server.gradle.properties">
+            <code>./server/gradle.properties</code>
+            <pre class="code-block" id="server.gradle.properties.content"></pre>
+          </div>
+        </div>
 
-      <p>Paste these in gradle.properties in your project</p>
+        <div class="column"></div>
 
-      <code id="ornithe-dependencies"> # Dependencies </code>
-      <code id="ornithe-dependencies-client" style="display: none;">
-        # Dependencies (client)
-      </code>
-      <code id="ornithe-dependencies-server" style="display: none;">
-        # Dependencies (server)
-      </code>
-      <code id="ornithe-dependencies-fmj" style="display: none;">
-        # Dependencies (fabric.mod.json)
-      </code>
-      <p id="dependencies-extra-message"></p>
+        <div class="column">
+          <h3>Mod metadata</h3>
+          <br/>
+          <div id="fabric.mod.json">
+            <code>./src/main/resources/fabric.mod.json</code>
+            <pre class="code-block" id="fabric.mod.json.content"></pre>
+          </div>
+          <div id="quilt.mod.json">
+            <code>./src/main/resources/quilt.mod.json</code>
+            <pre class="code-block" id="quilt.mod.json.content"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="column" id="build script">
+          <h3>Build script</h3>
+          <br/>
+          <div id="build.gradle">
+            <code>./build.gradle</code>
+            <pre class="code-block" id="build.gradle.content"></pre>
+          </div>
+          <br/>
+          <div id="client.build.gradle">
+            <code>./client/build.gradle</code>
+            <pre class="code-block" id="client.build.gradle.content"></pre>
+          </div>
+          <br/>
+          <div id="server.build.gradle">
+            <code>./server/build.gradle</code>
+            <pre class="code-block" id="server.build.gradle.content"></pre>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 </Layout>

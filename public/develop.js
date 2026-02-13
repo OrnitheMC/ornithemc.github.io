@@ -1,242 +1,634 @@
 import {
-    getMinecraftStableVersions,
     getMinecraftVersions,
-    getLatestLoader,
-    getLatestOsl,
-    getLatestFeatherBuild,
-    getLatestRavenBuild,
-    getLatestSparrowBuild,
-    getLatestNestsBuild
+    getLatestLoaderVersion,
+    getLatestOslVersion,
+    getLatestFeatherBuilds,
+    getLatestRavenBuilds,
+    getLatestSparrowBuilds,
+    getLatestNestsBuilds,
+    getVersionDetails,
+    isSharedVersioning
 } from "./meta_maven_utils.js";
 
 import { normalizeMinecraftVersion } from "./minecraft_semver.js";
 
 (async () => {
-    const genSelectorRadios = {
+    const FABRIC_LOOM = "net.fabricmc.fabric-loom-remap"
+    const QUILT_LOOM = "org.quiltmc.loom.remap"
+    const LOOM_VERSION = "1.15-SNAPSHOT"
+    const PLOCEUS = "ploceus"
+
+    const FABRIC_LOADER = "net.fabricmc:fabric-loader"
+    const QUILT_LOADER = "org.quiltmc:quilt-loader"
+
+    const minecraftVersionSelector = document.getElementById("mc-version");
+    const minecraftVersionList = document.getElementById("version-list");
+    const calamusGenSelector = document.getElementById("calamus-gen-selectors");
+    const calamusGenSelectorRadios = {
         gen1: document.getElementById("generation-gen1"),
         gen2: document.getElementById("generation-gen2")
     }
-
-    const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
-    let minecraftStableVersions = await getMinecraftStableVersions(gen);
-    let minecraftAllVersions = await getMinecraftVersions(gen);
-
-    let possibleVersions;
-
-    const loaderSelectorRadios = {
+    const modLoaderSelector = document.getElementById("mod-loader-selectors");
+    const modLoaderSelectorRadios = {
         fabric: document.getElementById("mod-loader-fabric"),
         quilt: document.getElementById("mod-loader-quilt")
     }
-    const versionSelectorInput = document.getElementById("mc-version");
-    const versionListElement = document.getElementById("version-list");
-    const allowSnapshotsCheck = document.getElementById("allow-snapshots");
-    const featherGenSelector = document.getElementById("calamus-gen-selectors");
+    
+    let minecraftVersions = [];
 
-    function setExtraMsg(message) {
-        document.getElementById("dependencies-extra-message").innerText = message;
+    function selectedMinecraftVersion() {
+        return minecraftVersionSelector.value;
     }
 
-    function getExtraMsg() {
-        return document.getElementById("dependencies-extra-message").innerText;
+    function selectedCalamusGeneration() {
+        return Object.entries(calamusGenSelectorRadios).find(([_, button]) => button.checked)[0];
     }
 
-    function addExtraMsg(message) {
-        setExtraMsg(getExtraMsg() + (getExtraMsg() !== "" ? "\n" : "") + message)
+    function selectedModLoader() {
+        return Object.entries(modLoaderSelectorRadios).find(([_, button]) => button.checked)[0];
     }
 
-    async function updateOrnitheDependencies() {
-        if (possibleVersions.some(version => versionSelectorInput.value === version)) {
-            const minecraftVersion = versionSelectorInput.value;
-            setExtraMsg("");
+    async function updateDisplayedElements() {
+        const minecraftVersion = selectedMinecraftVersion();
+        const intermediaryGen = selectedCalamusGeneration();
+        const modLoader = selectedModLoader();
+        
+        if (minecraftVersions.includes(minecraftVersion)) {
+            const versionDetails = await getVersionDetails(intermediaryGen, minecraftVersion);
+            const loaderVersion = await getLatestLoaderVersion(modLoader);
+            const featherBuilds = await getLatestFeatherBuilds(intermediaryGen, versionDetails);
+            const ravenBuilds = await getLatestRavenBuilds(versionDetails);
+            const sparrowBuilds = await getLatestSparrowBuilds(versionDetails);
+            const nestsBuilds = await getLatestNestsBuilds(versionDetails);
+            const oslVersion = await getLatestOslVersion(intermediaryGen);
 
-            setDependencyBlockLines("ornithe-dependencies", await constructOrnitheDependenciesMessage(minecraftVersion));
+            const sharedVersioning = isSharedVersioning(versionDetails);
 
-            const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
+            // wait for requests to finish to avoid flicker
+            hideElements();
+            wipeElementContents();
 
-            const mergedFeatherBuild = await getLatestFeatherBuild(gen, minecraftVersion);
+            showElement("build.gradle");
+            showElement("gradle.properties");
 
-            if (mergedFeatherBuild != null) {
-                hideDependencyBlock("ornithe-dependencies-client");
-                hideDependencyBlock("ornithe-dependencies-server");
-            }
+            const singleProject = (intermediaryGen != "gen1" || !sharedVersioning || versionDetails.sharedMappings || !versionDetails.client || !versionDetails.server);
 
-
-            if (mergedFeatherBuild != null) {
-                // for gen1, Feather builds for Minecraft 1.3+ are for all sides
-                // for gen2, Feather builds for all Minecraft versions are for all sides
-                appendDependencyBlockLines("ornithe-dependencies", await getOrnitheDependenciesForMerged(gen, minecraftVersion, mergedFeatherBuild));
-
-                // Raven, Sparrow, Nests builds for Minecraft versions between b1.0 and 1.3
-                // are for one side only, regardless of the intermediary gen
-                appendDependencyBlockLines("ornithe-dependencies", await getOrnitheDependenciesForSplit(gen, minecraftVersion, "client", null));
-                appendDependencyBlockLines("ornithe-dependencies", await getOrnitheDependenciesForSplit(gen, minecraftVersion, "server", null));
+            if (singleProject) {
+                await displayBuildScript(versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
+                await displayProjectProperties(versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
             } else {
-                // this block is only reached for gen1 for Minecraft versions older than 1.3
-                // where Feather builds are for one side only
-                const clientFeatherBuild = await getLatestFeatherBuild(gen, `${minecraftVersion}-client`);
-                const serverFeatherBuild = await getLatestFeatherBuild(gen, `${minecraftVersion}-server`);
-                setDependencyBlockLines("ornithe-dependencies-client", await getOrnitheDependenciesForSplit(gen, minecraftVersion, "client", clientFeatherBuild));
-                setDependencyBlockLines("ornithe-dependencies-server", await getOrnitheDependenciesForSplit(gen, minecraftVersion, "server", serverFeatherBuild));
+                await displayBuildScriptForGen1Split("root", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
+                await displayProjectPropertiesForGen1Split("root", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
 
-                // Raven, Sparrow, Nests builds for Minecraft versions older than b1.0
-                // or newer than 1.3 are for all sides, regardless of the intermediary gen
-                appendDependencyBlockLines("ornithe-dependencies", await getOrnitheDependenciesForMerged(gen, minecraftVersion, null));
+                if (versionDetails.client) {
+                    showElement("client.build.gradle");
+                    showElement("client.gradle.properties");
+
+                    await displayBuildScriptForGen1Split("client", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
+                    await displayProjectPropertiesForGen1Split("client", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
+                }
+                if (versionDetails.server) {
+                    showElement("server.build.gradle");
+                    showElement("server.gradle.properties");
+
+                    await displayBuildScriptForGen1Split("server", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
+                    await displayProjectPropertiesForGen1Split("server", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
+                }
             }
 
-            if (gen === "gen2") {
-                addExtraMsg("Make sure to use the \"gen2\" mod template!");
-            } else if (mergedFeatherBuild != null) {
-                addExtraMsg("Make sure to use the \"merged\" mod template for this Minecraft version!");
-            } else {
-                addExtraMsg("Make sure to use the \"split\" mod template for this Minecraft version!");
+            switch (modLoader) {
+                case "fabric":
+                    showElement("fabric.mod.json");
+                    await displayFabricModMetadata(versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
+                    break;
+                case "quilt":
+                    showElement("quilt.mod.json");
+                    await displayQuiltModMetadata(versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
+                    break;
+                default:
+                    throw new Error("unknown mod loader " + modLoader);
             }
-            setDependencyBlockLines("ornithe-dependencies-fmj", await getFmjDependenciesNote(minecraftVersion));
         } else {
-            document.getElementById("ornithe-dependencies").innerText = "Please select a valid Minecraft version!";
-            hideDependencyBlock("ornithe-dependencies-client");
-            hideDependencyBlock("ornithe-dependencies-server");
-            hideDependencyBlock("ornithe-dependencies-fmj");
-            setExtraMsg("");
+            hideElements();
         }
     }
 
-    function appendDependencyBlockLines(blockId, lines) {
-        let elem = document.getElementById(blockId);
-        elem.innerText = (elem.innerText.split("\n").concat(lines)).join("\n");
+    async function displayBuildScript(minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion) {
+        const sharedVersioning = isSharedVersioning(minecraftVersion);
+        const elementId = "build.gradle.content";
+
+        const plugins = [
+            "\tid 'java'"
+        ];
+
+        switch (modLoader) {
+            case "fabric":
+                plugins.push(`\tid '${FABRIC_LOOM}' version '${LOOM_VERSION}'`);
+                break;
+            case "quilt":
+                plugins.push(`\tid '${QUILT_LOOM}' version '${LOOM_VERSION}'`);
+                break;
+            default:
+                throw new Error("unknown mod loader " + modLoader);
+        }
+
+        plugins.push(`\tid '${PLOCEUS}' version '${LOOM_VERSION}'`);
+
+        if (plugins) {
+            plugins.unshift("plugins {");
+            plugins.push("}");
+
+            displayCodeBlockLines(elementId, plugins);
+        }
+
+        const loomCommands = [];
+        const ploceusCommands = [
+            `\tsetIntermediaryGeneration(${intermediaryGen.substring(3)})`
+        ]
+
+        if (!minecraftVersion.client || !minecraftVersion.server) {
+            if (minecraftVersion.client) {
+                loomCommands.push("\tclientOnlyMinecraftJar()");
+                if (intermediaryGen == "gen1") {
+                    ploceusCommands.push("\tclientOnlyMappings()");
+                }
+            }
+            if (minecraftVersion.server) {
+                loomCommands.push("\tserverOnlyMinecraftJar()");
+                if (intermediaryGen == "gen1") {
+                    ploceusCommands.push("\tserverOnlyMappings()");
+                }
+            }
+        }
+
+        if (loomCommands) {
+            loomCommands.unshift("loom {");
+            loomCommands.unshift(""); // empty line between blocks
+            loomCommands.push("}");
+
+            displayCodeBlockLines(elementId, loomCommands);
+        }
+        if (ploceusCommands) {
+            ploceusCommands.unshift("ploceus {");
+            ploceusCommands.unshift(""); // empty line between blocks
+            ploceusCommands.push("}");
+
+            displayCodeBlockLines(elementId, ploceusCommands);
+        }
+
+        const dependencies = [
+            `\tminecraft "com.mojang:minecraft:\${project.minecraft_version}"`,
+        ];
+
+        switch (modLoader) {
+            case "fabric":
+                dependencies.push(`\tmodImplementation "${FABRIC_LOADER}:\${project.loader_version}"`);
+                break;
+            case "quilt":
+                dependencies.push(`\tmodImplementation "${QUILT_LOADER}:\${project.loader_version}"`);
+                break;
+            default:
+                throw new Error("unknown mod loader " + modLoader);
+        }
+
+        dependencies.push("");
+        dependencies.push(`\tmappings ploceus.featherMappings(project.feather_build)`);
+        
+        if (ravenBuilds.merged != null) {
+            if (sharedVersioning || intermediaryGen != "gen1") {
+                dependencies.push(`\texceptions ploceus.raven(project.raven_build)`);
+            } else {
+                dependencies.push(`\texceptions ploceus.raven(project.raven_build, '${minecraftVersion.client ? "client" : "server"}')`);
+            }
+        } else {
+            if (ravenBuilds.client != null) {
+                dependencies.push(`\tclientExceptions ploceus.raven(project.client_raven_build, 'client')`);
+            }
+            if (ravenBuilds.server != null) {
+                dependencies.push(`\tserverExceptions ploceus.raven(project.server_raven_build, 'server')`);
+            }
+        }
+
+        if (sparrowBuilds.merged != null) {
+            if (sharedVersioning || intermediaryGen != "gen1") {
+                dependencies.push(`\tsignatures ploceus.sparrow(project.sparrow_build)`);
+            } else {
+                dependencies.push(`\tsignatures ploceus.sparrow(project.sparrow_build, '${minecraftVersion.client ? "client" : "server"}')`);
+            }
+        } else {
+            if (sparrowBuilds.client != null) {
+                dependencies.push(`\tclientSignatures ploceus.sparrow(project.client_sparrow_build, 'client')`);
+            }
+            if (sparrowBuilds.server != null) {
+                dependencies.push(`\tserverSignatures ploceus.sparrow(project.server_sparrow_build, 'server')`);
+            }
+        }
+
+        if (nestsBuilds.merged != null) {
+            if (sharedVersioning || intermediaryGen != "gen1") {
+                dependencies.push(`\tnests ploceus.nests(project.nests_build)`);
+            } else {
+                dependencies.push(`\tnests ploceus.nests(project.nests_build, '${minecraftVersion.client ? "client" : "server"}')`);
+            }
+        } else {
+            if (nestsBuilds.client != null) {
+                dependencies.push(`\tclientNests ploceus.nests(project.client_nests_build, 'client')`);
+            }
+            if (nestsBuilds.server != null) {
+                dependencies.push(`\tserverNests ploceus.nests(project.server_nests_build, 'server')`);
+            }
+        }
+
+        if (oslVersion != null) {
+            dependencies.push("");
+            dependencies.push(`\tploceus.dependOsl(project.osl_version)`);
+        }
+
+        if (dependencies) {
+            dependencies.unshift("dependencies {");
+            dependencies.unshift(""); // empty line between blocks
+            dependencies.push("}");
+
+            displayCodeBlockLines(elementId, dependencies);
+        }
     }
 
-    function setDependencyBlockLines(blockId, lines) {
-        let elem = document.getElementById(blockId);
+    async function displayBuildScriptForGen1Split(project, minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion) {
+        if (project == "root") {
+            const elementId = "build.gradle.content";
+
+            let plugins = [
+                "\tid 'java'"
+            ];
+
+            switch (modLoader) {
+                case "fabric":
+                    plugins.push(`\tid '${FABRIC_LOOM}' version '${LOOM_VERSION}' apply false`);
+                    break;
+                case "quilt":
+                    plugins.push(`\tid '${QUILT_LOOM}' version '${LOOM_VERSION}' apply false`);
+                    break;
+                default:
+                    throw new Error("unknown mod loader " + modLoader);
+            }
+
+            plugins.push(`\tid '${PLOCEUS}' version '${LOOM_VERSION}' apply false`);
+
+            if (plugins) {
+                plugins.unshift("plugins {");
+                plugins.push("}");
+
+                displayCodeBlockLines(elementId, plugins);
+            }
+
+            displayCodeBlockLines(elementId, [
+                "",
+                "def configure(project) {"
+            ]);
+
+            plugins = [
+                "\t\tproject.apply plugin: 'java'"
+            ];
+
+            switch (modLoader) {
+                case "fabric":
+                    plugins.push(`\t\tproject.apply plugin: '${FABRIC_LOOM}'`);
+                    break;
+                case "quilt":
+                    plugins.push(`\t\tproject.apply plugin: '${QUILT_LOOM}'`);
+                    break;
+                default:
+                    throw new Error("unknown mod loader " + modLoader);
+            }
+
+            plugins.push(`\t\tproject.apply plugin: '${PLOCEUS}'`);
+
+            if (plugins) {
+                plugins.unshift("\tproject.plugins {");
+                plugins.push("\t}");
+
+                displayCodeBlockLines(elementId, plugins);
+            }
+
+            const loomCommands = [];
+            const ploceusCommands = [
+                `\t\tsetIntermediaryGeneration(${intermediaryGen.substring(3)})`
+            ]
+
+            loomCommands.push("\t\tif (project.environment == 'client') {");
+            loomCommands.push("\t\t\tclientOnlyMinecraftJar()");
+            loomCommands.push("\t\t}");
+            loomCommands.push("\t\tif (project.environment == 'server') {");
+            loomCommands.push("\t\t\tserverOnlyMinecraftJar()");
+            loomCommands.push("\t\t}");
+            
+            ploceusCommands.push("");
+            ploceusCommands.push("\t\tif (project.environment == 'client') {");
+            ploceusCommands.push("\t\t\tclientOnlyMappings()");
+            ploceusCommands.push("\t\t}");
+            ploceusCommands.push("\t\tif (project.environment == 'server') {");
+            ploceusCommands.push("\t\t\tserverOnlyMappings()");
+            ploceusCommands.push("\t\t}");
+
+            if (loomCommands) {
+                loomCommands.unshift("\tproject.loom {");
+                loomCommands.unshift(""); // empty line between blocks
+                loomCommands.push("\t}");
+
+                displayCodeBlockLines(elementId, loomCommands);
+            }
+            if (ploceusCommands) {
+                ploceusCommands.unshift("\tproject.ploceus {");
+                ploceusCommands.unshift(""); // empty line between blocks
+                ploceusCommands.push("\t}");
+
+                displayCodeBlockLines(elementId, ploceusCommands);
+            }
+
+            const dependencies = [
+                `\t\tminecraft "com.mojang:minecraft:\${project.minecraft_version}"`,
+            ];
+
+            switch (modLoader) {
+                case "fabric":
+                    dependencies.push(`\t\tmodImplementation "${FABRIC_LOADER}:\${project.loader_version}"`);
+                    break;
+                case "quilt":
+                    dependencies.push(`\t\tmodImplementation "${QUILT_LOADER}:\${project.loader_version}"`);
+                    break;
+                default:
+                    throw new Error("unknown mod loader " + modLoader);
+            }
+
+            dependencies.push("");
+            dependencies.push(`\t\tmappings project.ploceus.featherMappings(project.feather_build)`);
+            
+            if (ravenBuilds.client != null || ravenBuilds.server != null) {
+                dependencies.push(`\t\texceptions project.ploceus.raven(project.raven_build)`);
+            }
+
+            if (sparrowBuilds.client != null || sparrowBuilds.server != null) {
+                dependencies.push(`\t\tsignatures project.ploceus.sparrow(project.sparrow_build)`);
+            }
+
+            if (nestsBuilds.client != null || nestsBuilds.server != null) {
+                dependencies.push(`\t\tnests project.ploceus.nests(project.nests_build)`);
+            }
+
+            if (oslVersion != null) {
+                dependencies.push("");
+                dependencies.push(`\t\tproject.ploceus.dependOsl(project.osl_version)`);
+            }
+
+            if (dependencies) {
+                dependencies.unshift("\tproject.dependencies {");
+                dependencies.unshift(""); // empty line between blocks
+                dependencies.push("\t}");
+
+                displayCodeBlockLines(elementId, dependencies);
+            }
+
+            displayCodeBlockLines(elementId, ["}"]);
+        } else {
+            const elementId = `${project}.build.gradle.content`;
+
+            displayCodeBlockLines(elementId, ["configure(project)"]);
+        }
+    }
+
+    async function displayProjectProperties(minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion) {
+        const elementId = "gradle.properties.content";
+        const lines = [];
+
+        lines.push(`minecraft_version = ${minecraftVersion.id}`);
+        lines.push(`loader_version = ${loaderVersion}`);
+        lines.push("");
+        if (featherBuilds.merged != null) {
+            lines.push(`feather_build = ${featherBuilds.merged}`);
+        } else {
+            lines.push(`feather_build = ${minecraftVersion.client ? featherBuilds.client : featherBuilds.server}`);
+        }
+        if (ravenBuilds.merged != null) {
+            lines.push(`raven_build = ${ravenBuilds.merged}`);
+        } else {
+            if (ravenBuilds.client != null) {
+                lines.push(`client_raven_build = ${ravenBuilds.client}`);
+            }
+            if (ravenBuilds.server != null) {
+                lines.push(`server_raven_build = ${ravenBuilds.server}`);
+            }
+        }
+        if (sparrowBuilds.merged != null) {
+            lines.push(`sparrow_build = ${sparrowBuilds.merged}`);
+        } else {
+            if (sparrowBuilds.client != null) {
+                lines.push(`client_sparrow_build = ${sparrowBuilds.client}`);
+            }
+            if (sparrowBuilds.server != null) {
+                lines.push(`server_sparrow_build = ${sparrowBuilds.server}`);
+            }
+        }
+        if (nestsBuilds.merged != null) {
+            lines.push(`nests_build = ${nestsBuilds.merged}`);
+        } else {
+            if (nestsBuilds.client != null) {
+                lines.push(`client_nests_build = ${nestsBuilds.client}`);
+            }
+            if (nestsBuilds.server != null) {
+                lines.push(`server_nests_build = ${nestsBuilds.server}`);
+            }
+        }
+        if (oslVersion != null) {
+            lines.push("");
+            lines.push(`osl_version = ${oslVersion}`);
+        }
+
+        if (lines) {
+            displayCodeBlockLines(elementId, lines);
+        }
+    }
+
+    async function displayProjectPropertiesForGen1Split(project, minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion) {
+        let elementId;
+        const lines = [];
+        
+        if (project == "root") {
+            elementId = "gradle.properties.content";
+
+            lines.push(`minecraft_version = ${minecraftVersion.id}`);
+            lines.push(`loader_version = ${loaderVersion}`);
+            if (oslVersion != null) {
+                lines.push("");
+                lines.push(`osl_version = ${oslVersion}`);
+            }
+
+        } else {
+            elementId = `${project}.gradle.properties.content`;
+
+            lines.push(`environment = ${project}`);
+            lines.push("");
+
+            if (project == "client") {
+                lines.push(`feather_build = ${featherBuilds.client}`);
+                if (ravenBuilds.client != null) {
+                    lines.push(`raven_build = ${ravenBuilds.client}`);
+                }
+                if (sparrowBuilds.client != null) {
+                    lines.push(`sparrow_build = ${sparrowBuilds.client}`);
+                }
+                if (nestsBuilds.client != null) {
+                    lines.push(`nests_build = ${nestsBuilds.client}`);
+                }
+            }
+            if (project == "server") {
+                lines.push(`feather_build = ${featherBuilds.server}`);
+                if (ravenBuilds.client != null) {
+                    lines.push(`raven_build = ${ravenBuilds.server}`);
+                }
+                if (sparrowBuilds.client != null) {
+                    lines.push(`sparrow_build = ${sparrowBuilds.server}`);
+                }
+                if (nestsBuilds.client != null) {
+                    lines.push(`nests_build = ${nestsBuilds.server}`);
+                }
+            }
+        }
+
+        if (lines) {
+            displayCodeBlockLines(elementId, lines);
+        }
+    }
+
+    async function displayFabricModMetadata(minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion) {
+        const elementId = "fabric.mod.json.content";
+        const lines = [];
+
+        const normalizedVersion = await normalizeMinecraftVersion(minecraftVersion.id);
+
+        lines.push(`{`);
+        lines.push(`\t"depends": {`);
+        lines.push(`\t\t"minecraft": "${normalizedVersion}"`);
+        lines.push(`\t}`);
+        lines.push(`}`);
+        
+
+        if (lines) {
+            displayCodeBlockLines(elementId, lines);
+        }
+    }
+
+    async function displayQuiltModMetadata(minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion) {
+        const elementId = "quilt.mod.json.content";
+        const lines = [];
+
+        const normalizedVersion = await normalizeMinecraftVersion(minecraftVersion.id);
+
+        lines.push(`{`);
+        lines.push(`\t"quilt_loader" {`);
+        lines.push(`\t\t"depends": [`);
+        lines.push(`\t\t\t{`);
+        lines.push(`\t\t\t\t"id": "minecraft"`);
+        lines.push(`\t\t\t\t"versions": "${normalizedVersion}"`);
+        lines.push(`\t\t\t}`);
+        lines.push(`\t\t]`);
+        lines.push(`\t}`);
+        lines.push(`}`);
+
+        if (lines) {
+            displayCodeBlockLines(elementId, lines);
+        }
+    }
+
+    function hideElements() {
+        hideElement("build.gradle");
+        hideElement("client.build.gradle");
+        hideElement("server.build.gradle");
+
+        hideElement("gradle.properties");
+        hideElement("client.gradle.properties");
+        hideElement("server.gradle.properties");
+
+        hideElement("fabric.mod.json");
+        hideElement("quilt.mod.json");
+    }
+
+    function hideElement(id) {
+        let elem = document.getElementById(id);
+        elem.style = "display: none;";
+    }
+
+    function showElement(id) {
+        let elem = document.getElementById(id);
         elem.style = "";
-        elem.innerText = lines.join("\n");
     }
 
-    function hideDependencyBlock(blockId) {
-        let elem = document.getElementById(blockId);
-        elem.style = "display: none;"
+    function wipeElement(id) {
+        let elem = document.getElementById(id);
         elem.innerText = "";
     }
 
-    async function getFmjDependenciesNote(minecraftVersion) {
-        let version = await normalizeMinecraftVersion(minecraftVersion);
+    function wipeElementContents() {
+        wipeElement("build.gradle.content");
+        wipeElement("client.build.gradle.content");
+        wipeElement("server.build.gradle.content");
 
-        let text = ["### fabric.mod.json "];
-        text.push(`"minecraft": "${version}"`);
-        return text;
+        wipeElement("gradle.properties.content");
+        wipeElement("client.gradle.properties.content");
+        wipeElement("server.gradle.properties.content");
+
+        wipeElement("fabric.mod.json.content");
+        wipeElement("quilt.mod.json.content");
     }
 
-    async function constructOrnitheDependenciesMessage(minecraftVersion) {
-        let lines = [
-            "### <project root>/gradle.properties",
-            "# Dependencies"
-        ];
-
-        const loader = Object.entries(loaderSelectorRadios).find(([_, button]) => button.checked)[0];
-
-        const loaderVersion = await getLatestLoader(loader);
-        const oslVersion = await getLatestOsl();
-
-        lines.push(
-            `minecraft_version = ${minecraftVersion}`,
-            `loader_version = ${loaderVersion}`,
-            `osl_version = ${oslVersion}`
-        );
-
-        return lines;
+    function displayCodeBlockLines(id, lines) {
+        let elem = document.getElementById(id);
+        elem.innerText += lines.join("\n") + "\n";
     }
 
-    async function getOrnitheDependenciesForMerged(gen, minecraftVersion, featherBuild) {
-        const lines = [];
-
-        const ravenBuild = await getLatestRavenBuild(minecraftVersion);
-        const sparrowBuild = await getLatestSparrowBuild(minecraftVersion);
-        const nestsBuild = await getLatestNestsBuild(minecraftVersion);
-
-        if (featherBuild !== null) {
-            lines.push(`feather_build = ${featherBuild}`);
+    function closeCodeBlock(id) {
+        let elem = document.getElementById(id);
+        while (elem.innerText.charAt(elem.innerText.length - 1) == "\n") {
+            elem.innerText = elem.innerText.substring(0, elem.innerText.length - 1);
         }
-        if (ravenBuild !== null) {
-            lines.push(`raven_build = ${ravenBuild}`);
-        }
-        if (sparrowBuild !== null) {
-            lines.push(`sparrow_build = ${sparrowBuild}`);
-        }
-        if (nestsBuild !== null) {
-            lines.push(`nests_build = ${nestsBuild}`);
-        }
-        return lines
     }
 
-    async function getOrnitheDependenciesForSplit(gen, minecraftVersion, environment, featherBuild) {
-        const ravenBuild = await getLatestRavenBuild(`${minecraftVersion}-${environment}`);
-        const sparrowBuild = await getLatestSparrowBuild(`${minecraftVersion}-${environment}`);
-        const nestsBuild = await getLatestNestsBuild(`${minecraftVersion}-${environment}`);
-
-        if (featherBuild !== null || ravenBuild !== null || sparrowBuild !== null || nestsBuild !== null) {
-            let lines = [];
-            if (gen === "gen1") {
-                lines.push(`### <project root>/${environment}/gradle.properties`)
-                lines.push(`environment = ${environment}`)
-            } else {
-                lines.push("")
-            }
-
-            // the gen1 mod template uses a subproject structure
-            // similar properties can have the same name in different subprojects
-            const prefix = gen === "gen1" ? "" : `${environment}_`;
-
-            if (featherBuild != null) {
-                lines.push(`feather_build = ${featherBuild}`);
-            }
-            if (ravenBuild !== null) {
-                lines.push(`${prefix}raven_build = ${ravenBuild}`);
-            }
-            if (sparrowBuild !== null) {
-                lines.push(`${prefix}sparrow_build = ${sparrowBuild}`);
-            }
-            if (nestsBuild !== null) {
-                lines.push(`${prefix}nests_build = ${nestsBuild}`);
-            }
-            return lines;
-        }
-        return [];
+    function replaceCodeBlockLines(id, from, to, ...lines) {
+        let elem = document.getElementById(id);
+        let f = elem.innerText.indexOf(from) + from.length;
+        let t = elem.innerText.indexOf(to, f);
+        let pre = elem.innerText.substring(0, f);
+        let suf = elem.innerText.substring(t);
+        elem.innerText = pre + lines.join("\n") + "\n" + suf;
     }
 
-    Object.entries(loaderSelectorRadios).forEach(([_, button]) => button.addEventListener("change", async _ => await updateOrnitheDependencies()));
+    minecraftVersionSelector.addEventListener("blur", async _ => {
+        await updateDisplayedElements();
+    });
+    modLoaderSelector.addEventListener("change", async (e) => {
+        await updateDisplayedElements();
+    });
+    calamusGenSelector.addEventListener("change", async (e) => {
+        await fetchVersions();
+        await updateVersionList();
+        await updateDisplayedElements();
+    });
 
-    versionSelectorInput.addEventListener("input", async _ => await updateOrnitheDependencies())
+    async function fetchVersions() {
+        const intermediaryGen = selectedCalamusGeneration();
+        minecraftVersions = await getMinecraftVersions(intermediaryGen);
+    }
 
-    allowSnapshotsCheck.addEventListener("change", async _ => {
-        updateVersionList();
-        await updateOrnitheDependencies();
-    })
-
-    featherGenSelector.addEventListener("change", async (e) => {
-        const gen = Object.entries(genSelectorRadios).find(([_, button]) => button === e.target)[0];
-        minecraftStableVersions = await getMinecraftStableVersions(gen);
-        minecraftAllVersions = await getMinecraftVersions(gen);
-
-        updateVersionList();
-        // Update the dependencies message since it depends on the feather gen
-        await updateOrnitheDependencies();
-    })
-
-    function updateVersionList() {
-        if (allowSnapshotsCheck.checked) {
-            possibleVersions = minecraftAllVersions;
-        } else {
-            possibleVersions = minecraftStableVersions;
-        }
-
-        while (versionListElement.firstChild) versionListElement.removeChild(versionListElement.lastChild);
-        possibleVersions.forEach(e => {
+    async function updateVersionList() {
+        while (minecraftVersionList.firstChild) minecraftVersionList.removeChild(minecraftVersionList.lastChild);
+        minecraftVersions.forEach(e => {
             const opt = new Option();
             opt.value = e;
-            versionListElement.appendChild(opt);
+            minecraftVersionList.appendChild(opt);
         });
     }
 
-    updateVersionList()
-    await updateOrnitheDependencies()
+    await fetchVersions();
+    await updateVersionList();
+    await updateDisplayedElements();
 
 })()

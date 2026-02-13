@@ -16,8 +16,10 @@
   :root {
     --bg-ornithe: #ffffff;
     --bg-o-transparent: #00000020;
-    --bg-input: #e5e5e5;
+    --bg-input: #e0efff;
     --bg-button: #93c5fd;
+    --bg-code-inline: #e5e5e5;
+    --bg-code-block: #e0efff;
     --text-ornithe: #000000;
     --tile-bg-lightness: 98%;
     --tile-bd-lightness: 70%;
@@ -25,8 +27,10 @@
   :root[class~="dark"] {
     --bg-ornithe: #000000;
     --bg-o-transparent: #ffffff20;
-    --bg-input: #171717;
+    --bg-input: #171c2c;
     --bg-button: #172554;
+    --bg-code-inline: #171717;
+    --bg-code-block: #171c2c;
     --text-ornithe: #ffffff;
     --tile-bg-lightness: 5%;
     --tile-bd-lightness: 85%;
@@ -53,10 +57,10 @@ a {
 }
 
 code {
-  @apply bg-ornithe-input-bg p-1;
+  @apply bg-ornithe-code-inline-bg p-1;
 }
 code[class~="dark"] {
-  @apply bg-ornithe-input-bg p-1;
+  @apply bg-ornithe-code-inline-bg p-1;
 }
 
 fieldset {
@@ -96,6 +100,11 @@ div {
 }
 
 .column {
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.tile {
   flex: 1 1 0px;
   margin: 4px 10px;
   padding: 20px;
@@ -164,6 +173,11 @@ div {
 .dark-blue-tile {
   background-color: hsl(240, 100%, var(--tile-bg-lightness));
   border-color: hsl(240, 100%, var(--tile-bd-lightness))
+}
+
+.code-block {
+  background-color: var(--bg-code-block);
+  padding: 20px;
 }
 
 /*If someone could get a tailwind.css file working I'd be grateful. -worldwidepixel*/
