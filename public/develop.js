@@ -159,25 +159,27 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         }
     }
 
-    function generateVersionAccessor(property, dependencyManagement, alias = null) {
-        if (!alias) {
-            alias = property.replace(/_/g, ".");
-        }
-
+    function generateVersionAccessor(property, dependencyManagement, alias = null, useProject = false) {
         switch (dependencyManagement) {
             case "propertiesFile":
                 return `project.${property}`
             case "versionCatalog":
-                return `libs.versions.${alias}.get()`
+                if (!alias) {
+                    alias = property.replace(/_/g, ".");
+                }
+
+                const prefix = useProject ? "project." : "";
+                return `${prefix}libs.versions.${alias}.get()`
             default:
                 throw new Error(`Unknown dependency management type ${dependencyManagement}`);
         }
     }
 
-    function generateDependencyDefinition(id, alias, version, dependencyManagement) {
+    function generateDependencyDefinition(id, alias, version, dependencyManagement, useProject = false) {
         switch (dependencyManagement) {
             case "versionCatalog":
-                return `libs.${alias}`
+                const prefix = useProject ? "project." : "";
+                return `${prefix}libs.${alias}`
             case "propertiesFile":
                 return `"${id}:${version}"`
             default:
@@ -353,22 +355,10 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                 displayCodeBlockLines(elementId, plugins);
             }
 
-            switch (dependencyManagement) {
-                case "propertiesFile":
-                    displayCodeBlockLines(elementId, [
-                        "",
-                        "def configure(project) {"
-                    ]);
-                    break;
-                case "versionCatalog":
-                    displayCodeBlockLines(elementId, [
-                        "",
-                        "def configure(project, libs) {"
-                    ]);
-                    break;
-                default:
-                    throw new Error(`Unknown dependency management type ${dependencyManagement}`);
-            }
+            displayCodeBlockLines(elementId, [
+                "",
+                "def configure(project) {"
+            ]);
 
             plugins = [
                 "\t\tproject.apply plugin: 'java'"
@@ -430,15 +420,15 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
             }
 
             const dependencies = [
-                `\t\tminecraft ${generateDependencyDefinition("com.mojang:minecraft", "minecraft", "${project.minecraft_version}", dependencyManagement)}`
+                `\t\tminecraft ${generateDependencyDefinition("com.mojang:minecraft", "minecraft", "${project.minecraft_version}", dependencyManagement, true)}`
             ];
 
             switch (modLoader) {
                 case "fabric":
-                    dependencies.push(`\t\tmodImplementation ${generateDependencyDefinition(FABRIC_LOADER, "loader", "${project.loader_version}", dependencyManagement)}`)
+                    dependencies.push(`\t\tmodImplementation ${generateDependencyDefinition(FABRIC_LOADER, "loader", "${project.loader_version}", dependencyManagement, true)}`)
                     break;
                 case "quilt":
-                    dependencies.push(`\t\tmodImplementation ${generateDependencyDefinition(QUILT_LOADER, "loader", "${project.loader_version}", dependencyManagement)}`)
+                    dependencies.push(`\t\tmodImplementation ${generateDependencyDefinition(QUILT_LOADER, "loader", "${project.loader_version}", dependencyManagement, true)}`)
                     break;
                 default:
                     throw new Error("unknown mod loader " + modLoader);
@@ -466,32 +456,32 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                     dependencies.push("\t\tif (project.environment == 'client') {");
 
                     if (featherBuilds.client !== null) {
-                        dependencies.push(`\t\t\tmappings project.ploceus.featherMappings(libs.versions.client.feather.build.get())`);
+                        dependencies.push(`\t\t\tmappings project.ploceus.featherMappings(project.libs.versions.client.feather.build.get())`);
                     }
                     if (ravenBuilds.client !== null) {
-                        dependencies.push(`\t\t\texceptions project.ploceus.raven(libs.versions.client.raven.build.get())`);
+                        dependencies.push(`\t\t\texceptions project.ploceus.raven(project.libs.versions.client.raven.build.get())`);
                     }
                     if (sparrowBuilds.client !== null) {
-                        dependencies.push(`\t\t\tsignatures project.ploceus.sparrow(libs.versions.client.sparrow.build.get())`);
+                        dependencies.push(`\t\t\tsignatures project.ploceus.sparrow(project.libs.versions.client.sparrow.build.get())`);
                     }
                     if (nestsBuilds.client !== null) {
-                        dependencies.push(`\t\t\tnests project.ploceus.nests(libs.versions.client.nests.build.get())`);
+                        dependencies.push(`\t\t\tnests project.ploceus.nests(project.libs.versions.client.nests.build.get())`);
                     }
 
                     dependencies.push("\t\t}");
                     dependencies.push("\t\tif (project.environment == 'server') {");
 
                     if (featherBuilds.server !== null) {
-                        dependencies.push(`\t\t\tmappings project.ploceus.featherMappings(libs.versions.server.feather.build.get())`);
+                        dependencies.push(`\t\t\tmappings project.ploceus.featherMappings(project.libs.versions.server.feather.build.get())`);
                     }
                     if (ravenBuilds.server !== null) {
-                        dependencies.push(`\t\t\texceptions project.ploceus.raven(libs.versions.server.raven.build.get())`);
+                        dependencies.push(`\t\t\texceptions project.ploceus.raven(project.libs.versions.server.raven.build.get())`);
                     }
                     if (sparrowBuilds.server !== null) {
-                        dependencies.push(`\t\t\tsignatures project.ploceus.sparrow(libs.versions.server.sparrow.build.get())`);
+                        dependencies.push(`\t\t\tsignatures project.ploceus.sparrow(project.libs.versions.server.sparrow.build.get())`);
                     }
                     if (nestsBuilds.server !== null) {
-                        dependencies.push(`\t\t\tnests project.ploceus.nests(libs.versions.server.nests.build.get())`);
+                        dependencies.push(`\t\t\tnests project.ploceus.nests(project.libs.versions.server.nests.build.get())`);
                     }
 
                     dependencies.push("\t\t}");
@@ -502,7 +492,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
 
             if (oslVersion != null) {
                 dependencies.push("");
-                dependencies.push(`\t\tproject.ploceus.dependOsl(${generateVersionAccessor("osl_version", dependencyManagement, "osl")}, project.environment)`);
+                dependencies.push(`\t\tproject.ploceus.dependOsl(${generateVersionAccessor("osl_version", dependencyManagement, "osl", true)}, project.environment)`);
             }
 
             if (dependencies) {
@@ -517,16 +507,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         } else {
             const elementId = `${project}.build.gradle.content`;
 
-            switch (dependencyManagement) {
-                case "propertiesFile":
-                    displayCodeBlockLines(elementId, ["configure(project)"]);
-                    break;
-                case "versionCatalog":
-                    displayCodeBlockLines(elementId, ["configure(project, libs)"]);
-                    break;
-                default:
-                    throw new Error(`Unknown dependency management type ${dependencyManagement}`);
-            }
+            displayCodeBlockLines(elementId, ["configure(project)"]);
         }
     }
 
