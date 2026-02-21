@@ -76,6 +76,20 @@ import Button from "../components/Button.astro";
           <input type="radio" id="generation-gen2" name="calamus-generation" />
           <label for="generation-gen2">Gen2</label>
         </fieldset>
+
+        <fieldset id="dependency-management-selectors">
+          <legend>Select a dependency management solution</legend>
+          <input
+            type="radio"
+            id="dependency-properties-file"
+            name="dependency-management"
+            checked
+          />
+          <label for="dependency-properties-file">Properties File</label>
+
+          <input type="radio" id="dependency-version-catalog" name="dependency-management" />
+          <label for="dependency-version-catalog">Version Catalog</label>
+        </fieldset>
       </div>
       <div>
       </div>
@@ -83,26 +97,31 @@ import Button from "../components/Button.astro";
       </div>
       <div class="row">
         <div class="column">
-          <h3>Project properties</h3>
+          <h3>Dependency Management</h3>
           <br/>
           <div id="gradle.properties">
             <code>./gradle.properties</code>
             <pre class="code-block" id="gradle.properties.content"></pre>
+            <br/>
           </div>
-          <br/>
           <div id="client.gradle.properties">
             <code>./client/gradle.properties</code>
             <pre class="code-block" id="client.gradle.properties.content"></pre>
+            <br/>
           </div>
-          <br/>
           <div id="server.gradle.properties">
             <code>./server/gradle.properties</code>
             <pre class="code-block" id="server.gradle.properties.content"></pre>
+            <br/>
+          </div>
+          <div id="version-catalog">
+            <code>./gradle/libs.versions.toml</code>
+            <pre class="code-block" id="version-catalog.content"></pre>
           </div>
         </div>
+      </div>
 
-        <div class="column"></div>
-
+      <div class="row">
         <div class="column">
           <h3>Mod metadata</h3>
           <br/>
@@ -116,6 +135,7 @@ import Button from "../components/Button.astro";
           </div>
         </div>
       </div>
+
       <div class="row">
         <div class="column" id="build script">
           <h3>Build script</h3>
