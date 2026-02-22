@@ -62,15 +62,20 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         const intermediaryGen = selectedCalamusGeneration();
         const modLoader = selectedModLoader();
         const dependencyManagement = selectedDependencyManagement();
-        
+
         if (minecraftVersions.includes(minecraftVersion)) {
             const versionDetails = await getVersionDetails(intermediaryGen, minecraftVersion);
-            const loaderVersion = await getLatestLoaderVersion(modLoader);
-            const featherBuilds = await getLatestFeatherBuilds(intermediaryGen, versionDetails);
-            const ravenBuilds = await getLatestRavenBuilds(versionDetails);
-            const sparrowBuilds = await getLatestSparrowBuilds(versionDetails);
-            const nestsBuilds = await getLatestNestsBuilds(versionDetails);
-            const oslVersion = await getLatestOslVersion(intermediaryGen);
+
+            const [loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion] = await Promise.all(
+                [
+                    getLatestLoaderVersion(modLoader),
+                    getLatestFeatherBuilds(intermediaryGen, versionDetails),
+                    getLatestRavenBuilds(versionDetails),
+                    getLatestSparrowBuilds(versionDetails),
+                    getLatestNestsBuilds(versionDetails),
+                    getLatestOslVersion(intermediaryGen),
+                ]
+            );
 
             const sharedVersioning = isSharedVersioning(versionDetails);
 
