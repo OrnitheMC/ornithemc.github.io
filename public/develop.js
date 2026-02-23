@@ -6,6 +6,8 @@ import {
     getLatestRavenBuilds,
     getLatestSparrowBuilds,
     getLatestNestsBuilds,
+    getLoomVersions,
+    getPloceusVersions,
     getVersionDetails,
     isSharedVersioning
 } from "./meta_maven_utils.js";
@@ -15,7 +17,6 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
 (async () => {
     const FABRIC_LOOM = "net.fabricmc.fabric-loom-remap"
     const QUILT_LOOM = "org.quiltmc.loom.remap"
-    const LOOM_VERSION = "1.15-SNAPSHOT"
     const PLOCEUS = "ploceus"
 
     const FABRIC_LOADER = "net.fabricmc:fabric-loader"
@@ -57,6 +58,36 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         return Object.entries(dependencyManagementSelectorRadios).find(([_, button]) => button.checked)[0];
     }
 
+    function isStable(version) {
+        return !version.includes("-");
+    }
+
+    function significantPrefix(version) {
+        return version.split(".").splice(0, 2).join(".");
+    }
+
+    function highestCompatibleVersions(loomVersions, ploceusVersions) {
+        // Map of major.minor -> latest patch of the same major.minor
+        const ploceusLookup = new Map(ploceusVersions.reverse().filter(isStable).map(version => {
+            return [significantPrefix(version), version];
+        }));
+
+        for (const loomVersion of loomVersions) {
+            if (!isStable(loomVersion)) {
+                continue;
+            }
+
+            const prefix = significantPrefix(loomVersion);
+            const ploceusVersion = ploceusLookup.get(prefix);
+
+            if (ploceusVersion) {
+                return [loomVersion, ploceusVersion];
+            }
+        }
+
+        throw new Error("Unable to compute recommended Loom and Ploceus versions");
+    }
+
     async function updateDisplayedElements() {
         const minecraftVersion = selectedMinecraftVersion();
         const intermediaryGen = selectedCalamusGeneration();
@@ -66,9 +97,11 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         if (minecraftVersions.includes(minecraftVersion)) {
             const versionDetails = await getVersionDetails(intermediaryGen, minecraftVersion);
 
-            const [loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion] = await Promise.all(
+            const [loaderVersion, loomVersions, ploceusVersions, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion] = await Promise.all(
                 [
                     getLatestLoaderVersion(modLoader),
+                    getLoomVersions(modLoader),
+                    getPloceusVersions(),
                     getLatestFeatherBuilds(intermediaryGen, versionDetails),
                     getLatestRavenBuilds(versionDetails),
                     getLatestSparrowBuilds(versionDetails),
@@ -78,6 +111,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
             );
 
             const sharedVersioning = isSharedVersioning(versionDetails);
+            const [loomVersion, ploceusVersion] = highestCompatibleVersions(loomVersions, ploceusVersions);
 
             // wait for requests to finish to avoid flicker
             hideElements();
@@ -91,7 +125,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                     break;
                 case "versionCatalog":
                     showElement("version-catalog");
-                    await displayVersionCatalog(versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
+                    await displayVersionCatalog(versionDetails, intermediaryGen, modLoader, loaderVersion, loomVersion, ploceusVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
                     break;
                 default:
                     throw new Error(`Unknown dependency management type ${dependencyManagement}`);
@@ -100,13 +134,13 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
             const singleProject = (intermediaryGen != "gen1" || !sharedVersioning || versionDetails.sharedMappings || !versionDetails.client || !versionDetails.server);
 
             if (singleProject) {
-                await displayBuildScript(versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
+                await displayBuildScript(versionDetails, intermediaryGen, modLoader, loaderVersion, loomVersion, ploceusVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
 
                 if (dependencyManagement === "propertiesFile") {
                     await displayProjectProperties(versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion);
                 }
             } else {
-                await displayBuildScriptForGen1Split("root", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
+                await displayBuildScriptForGen1Split("root", versionDetails, intermediaryGen, modLoader, loaderVersion, loomVersion, ploceusVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
 
                 if (dependencyManagement === "propertiesFile") {
                     await displayProjectPropertiesForGen1Split("root", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
@@ -116,14 +150,14 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                     showElement("client.build.gradle");
                     showElement("client.gradle.properties");
 
-                    await displayBuildScriptForGen1Split("client", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
+                    await displayBuildScriptForGen1Split("client", versionDetails, intermediaryGen, modLoader, loaderVersion, loomVersion, ploceusVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
                     await displayProjectPropertiesForGen1Split("client", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
                 }
                 if (versionDetails.server) {
                     showElement("server.build.gradle");
                     showElement("server.gradle.properties");
 
-                    await displayBuildScriptForGen1Split("server", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
+                    await displayBuildScriptForGen1Split("server", versionDetails, intermediaryGen, modLoader, loaderVersion, loomVersion, ploceusVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
                     await displayProjectPropertiesForGen1Split("server", versionDetails, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement);
                 }
             }
@@ -192,7 +226,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         }
     }
 
-    async function displayBuildScript(minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement) {
+    async function displayBuildScript(minecraftVersion, intermediaryGen, modLoader, loaderVersion, loomVersion, ploceusVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement) {
         const sharedVersioning = isSharedVersioning(minecraftVersion);
         const elementId = "build.gradle.content";
 
@@ -202,16 +236,16 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
 
         switch (modLoader) {
             case "fabric":
-                plugins.push(`\t${generatePluginDefinition(FABRIC_LOOM, "loom", LOOM_VERSION, dependencyManagement)}`);
+                plugins.push(`\t${generatePluginDefinition(FABRIC_LOOM, "loom", loomVersion, dependencyManagement)}`);
                 break;
             case "quilt":
-                plugins.push(`\t${generatePluginDefinition(QUILT_LOOM, "loom", LOOM_VERSION, dependencyManagement)}`);
+                plugins.push(`\t${generatePluginDefinition(QUILT_LOOM, "loom", loomVersion, dependencyManagement)}`);
                 break;
             default:
                 throw new Error("unknown mod loader " + modLoader);
         }
 
-        plugins.push(`\t${generatePluginDefinition(PLOCEUS, "ploceus", LOOM_VERSION, dependencyManagement)}`);
+        plugins.push(`\t${generatePluginDefinition(PLOCEUS, "ploceus", ploceusVersion, dependencyManagement)}`);
 
         if (plugins) {
             plugins.unshift("plugins {");
@@ -332,7 +366,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         }
     }
 
-    async function displayBuildScriptForGen1Split(project, minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement) {
+    async function displayBuildScriptForGen1Split(project, minecraftVersion, intermediaryGen, modLoader, loaderVersion, loomVersion, ploceusVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion, dependencyManagement) {
         if (project == "root") {
             const elementId = "build.gradle.content";
 
@@ -342,16 +376,16 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
 
             switch (modLoader) {
                 case "fabric":
-                    plugins.push(`\t${generatePluginDefinition(FABRIC_LOOM, "loom", LOOM_VERSION, dependencyManagement, false)}`);
+                    plugins.push(`\t${generatePluginDefinition(FABRIC_LOOM, "loom", loomVersion, dependencyManagement, false)}`);
                     break;
                 case "quilt":
-                    plugins.push(`\t${generatePluginDefinition(QUILT_LOOM, "loom", LOOM_VERSION, dependencyManagement, false)}`);
+                    plugins.push(`\t${generatePluginDefinition(QUILT_LOOM, "loom", loomVersion, dependencyManagement, false)}`);
                     break;
                 default:
                     throw new Error("unknown mod loader " + modLoader);
             }
 
-            plugins.push(`\t${generatePluginDefinition(PLOCEUS, "ploceus", LOOM_VERSION, dependencyManagement, false)}`);
+            plugins.push(`\t${generatePluginDefinition(PLOCEUS, "ploceus", ploceusVersion, dependencyManagement, false)}`);
 
             if (plugins) {
                 plugins.unshift("plugins {");
@@ -568,7 +602,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         }
     }
 
-    async function displayVersionCatalog(minecraftVersion, intermediaryGen, modLoader, loaderVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion) {
+    async function displayVersionCatalog(minecraftVersion, intermediaryGen, modLoader, loaderVersion, loomVersion, ploceusVersion, featherBuilds, ravenBuilds, sparrowBuilds, nestsBuilds, oslVersion) {
         const elementId = "version-catalog.content";
         const lines = [];
 
@@ -621,8 +655,8 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         }
 
         lines.push(``);
-        lines.push(`loom = "${LOOM_VERSION}"`);
-        lines.push(`ploceus = "${LOOM_VERSION}"`);
+        lines.push(`loom = "${loomVersion}"`);
+        lines.push(`ploceus = "${ploceusVersion}"`);
 
         lines.push(``);
         lines.push(`[libraries]`);
