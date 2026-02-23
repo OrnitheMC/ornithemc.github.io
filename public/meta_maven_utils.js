@@ -212,3 +212,42 @@ export function isSharedVersioning(minecraftVersion) {
     const fc = minecraftVersion.id.charAt(0);
     return !(fc == 'r' || fc == 'p' || fc == 'c' || fc == 'i' || fc == 'a' || fc == 's');
 }
+
+async function getVersionsFromMavenMetadata(url) {
+    const response = await fetch(url);
+    const data = await response.text();
+
+    const parser = new DOMParser();
+    const document = parser.parseFromString(data, "text/xml");
+    const versions = document.getElementsByTagName("version");
+
+    const results = [];
+
+    for (const version of versions) {
+        results.push(version.textContent);
+    }
+
+    return results.sort((left, right) => compareVersion(left, right));
+}
+
+export async function getLoomVersions(modLoader) {
+    let base;
+
+    switch (modLoader) {
+        case "fabric":
+            base = "https://maven.fabricmc.net/net/fabricmc/fabric-loom-remap/net.fabricmc.fabric-loom-remap.gradle.plugin";
+            break;
+        case "quilt":
+            base = "https://maven.quiltmc.org/repository/release/org/quiltmc/loom/remap/org.quiltmc.loom.remap.gradle.plugin";
+            break;
+        default:
+            throw new Error("unknown mod loader " + modLoader);
+    }
+
+    return await getVersionsFromMavenMetadata(`${base}/maven-metadata.xml`);
+}
+
+export async function getPloceusVersions() {
+    const url = `https://${MAVEN}/releases/net/ornithemc/ploceus/maven-metadata.xml`;
+    return await getVersionsFromMavenMetadata(url);
+}
