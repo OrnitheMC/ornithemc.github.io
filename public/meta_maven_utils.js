@@ -161,6 +161,7 @@ export async function getLatestLoaderVersion(loader) {
 
 export async function getLatestOslVersion(intermediaryGen) {
     return await getOslVersionsMeta(intermediaryGen)
+        .then(l => l.filter(e => !(e.version.includes('-'))))
         .then(l => l.sort((e1, e2) => compareVersion(e1.version, e2.version)))
         .then(([head, ..._]) => head)
         .then(e => e.version);
