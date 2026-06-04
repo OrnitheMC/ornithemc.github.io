@@ -78,25 +78,26 @@ const { title } = Astro.props;
 
     const themeSwitcher = document.getElementById("themeSwitcher");
 
-    if (theme === "light") {
-      document.documentElement.classList.remove("dark");
-      themeSwitcher.textContent = "🌙";
-    } else {
-      document.documentElement.classList.add("dark");
-      themeSwitcher.textContent = "☀️";
-    }
+    renderTheme();
     window.localStorage.setItem("theme", theme);
+
+    function renderTheme() {
+      if (theme === "light") {
+        document.documentElement.classList.remove("dark");
+        themeSwitcher.textContent = "🌙";
+      } else {
+        document.documentElement.classList.add("dark");
+        themeSwitcher.textContent = "☀️";
+      }
+    }
 
     function changeTheme() {
       if (theme === "light") {
         theme = "dark";
-        document.documentElement.classList.add("dark");
-        themeSwitcher.textContent = "☀️";
       } else {
         theme = "light";
-        document.documentElement.classList.remove("dark");
-        themeSwitcher.textContent = "🌙";
       }
+      renderTheme();
       window.localStorage.setItem("theme", theme);
     }
   </script>
