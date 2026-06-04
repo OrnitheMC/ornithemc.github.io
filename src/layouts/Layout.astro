@@ -46,13 +46,13 @@ const { title } = Astro.props;
             &bull;
             <a class="w-fit" target="_blank" rel="noopener noreferrer" href="https://maven.ornithemc.net">Maven</a>
           </div>
-          <div
+          <button
             id="themeSwitcher"
             onclick="changeTheme()"
             class="w-8 h-8 flex flex-col items-center justify-center rounded-full aspect-square transition cursor-pointer hover:bg-ornithe-transparent-bg"
           >
             🌙
-          </div>
+          </button>
         </div>
       </nav>
       <main class="flex flex-row justify-center w-full">
@@ -85,9 +85,11 @@ const { title } = Astro.props;
       if (theme === "light") {
         document.documentElement.classList.remove("dark");
         themeSwitcher.textContent = "🌙";
+        themeSwitcher.ariaLabel = "Switch color scheme to dark mode";
       } else {
         document.documentElement.classList.add("dark");
         themeSwitcher.textContent = "☀️";
+        themeSwitcher.ariaLabel="Switch color scheme to light mode";
       }
     }
 
