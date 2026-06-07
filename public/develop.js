@@ -305,7 +305,6 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         }
 
         dependencies.push("");
-        dependencies.push(`\tmappings ploceus.featherMappings(${generateVersionAccessor("feather_build", dependencyManagement)})`);
         
         if (ravenBuilds.merged != null) {
             if (sharedVersioning || intermediaryGen != "gen1") {
@@ -351,6 +350,8 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                 dependencies.push(`\tserverNests ploceus.nests(${generateVersionAccessor("server_nests_build", dependencyManagement)}, 'server')`);
             }
         }
+
+        dependencies.push(`\tmappings ploceus.featherMappings(${generateVersionAccessor("feather_build", dependencyManagement)})`);
 
         if (oslVersion != null) {
             dependencies.push("");
@@ -477,8 +478,6 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
 
             switch (dependencyManagement) {
                 case "propertiesFile":
-                    dependencies.push(`\t\tmappings project.ploceus.featherMappings(project.feather_build)`);
-
                     if (ravenBuilds.client != null || ravenBuilds.server != null) {
                         dependencies.push(`\t\texceptions project.ploceus.raven(project.raven_build)`);
                     }
@@ -490,13 +489,13 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                     if (nestsBuilds.client != null || nestsBuilds.server != null) {
                         dependencies.push(`\t\tnests project.ploceus.nests(project.nests_build)`);
                     }
+
+                    dependencies.push(`\t\tmappings project.ploceus.featherMappings(project.feather_build)`);
+
                     break;
                 case "versionCatalog":
                     dependencies.push("\t\tif (project.environment == 'client') {");
 
-                    if (featherBuilds.client !== null) {
-                        dependencies.push(`\t\t\tmappings project.ploceus.featherMappings(project.libs.versions.client.feather.build.get())`);
-                    }
                     if (ravenBuilds.client !== null) {
                         dependencies.push(`\t\t\texceptions project.ploceus.raven(project.libs.versions.client.raven.build.get())`);
                     }
@@ -506,13 +505,13 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                     if (nestsBuilds.client !== null) {
                         dependencies.push(`\t\t\tnests project.ploceus.nests(project.libs.versions.client.nests.build.get())`);
                     }
+                    if (featherBuilds.client !== null) {
+                        dependencies.push(`\t\t\tmappings project.ploceus.featherMappings(project.libs.versions.client.feather.build.get())`);
+                    }
 
                     dependencies.push("\t\t}");
                     dependencies.push("\t\tif (project.environment == 'server') {");
 
-                    if (featherBuilds.server !== null) {
-                        dependencies.push(`\t\t\tmappings project.ploceus.featherMappings(project.libs.versions.server.feather.build.get())`);
-                    }
                     if (ravenBuilds.server !== null) {
                         dependencies.push(`\t\t\texceptions project.ploceus.raven(project.libs.versions.server.raven.build.get())`);
                     }
@@ -521,6 +520,9 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                     }
                     if (nestsBuilds.server !== null) {
                         dependencies.push(`\t\t\tnests project.ploceus.nests(project.libs.versions.server.nests.build.get())`);
+                    }
+                    if (featherBuilds.server !== null) {
+                        dependencies.push(`\t\t\tmappings project.ploceus.featherMappings(project.libs.versions.server.feather.build.get())`);
                     }
 
                     dependencies.push("\t\t}");
@@ -557,11 +559,6 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         lines.push(`minecraft_version = ${minecraftVersion.id}`);
         lines.push(`loader_version = ${loaderVersion}`);
         lines.push("");
-        if (featherBuilds.merged != null) {
-            lines.push(`feather_build = ${featherBuilds.merged}`);
-        } else {
-            lines.push(`feather_build = ${minecraftVersion.client ? featherBuilds.client : featherBuilds.server}`);
-        }
         if (ravenBuilds.merged != null) {
             lines.push(`raven_build = ${ravenBuilds.merged}`);
         } else {
@@ -592,6 +589,11 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                 lines.push(`server_nests_build = ${nestsBuilds.server}`);
             }
         }
+        if (featherBuilds.merged != null) {
+            lines.push(`feather_build = ${featherBuilds.merged}`);
+        } else {
+            lines.push(`feather_build = ${minecraftVersion.client ? featherBuilds.client : featherBuilds.server}`);
+        }
         if (oslVersion != null) {
             lines.push("");
             lines.push(`osl_version = ${oslVersion}`);
@@ -614,26 +616,6 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
 
         lines.push(``);
 
-        if (featherBuilds.merged !== null) {
-            lines.push(`feather_build = "${featherBuilds.merged}"`)
-        }
-        if (featherBuilds.client !== null) {
-            lines.push(`client_feather_build = "${featherBuilds.client}"`)
-        }
-        if (featherBuilds.server !== null) {
-            lines.push(`server_feather_build = "${featherBuilds.server}"`)
-        }
-
-        if (nestsBuilds.merged !== null) {
-            lines.push(`nests_build = "${nestsBuilds.merged}"`)
-        }
-        if (nestsBuilds.client !== null) {
-            lines.push(`client_nests_build = "${nestsBuilds.client}"`)
-        }
-        if (nestsBuilds.server !== null) {
-            lines.push(`server_nests_build = "${nestsBuilds.server}"`)
-        }
-
         if (ravenBuilds.merged !== null) {
             lines.push(`raven_build = "${ravenBuilds.merged}"`)
         }
@@ -652,6 +634,26 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         }
         if (sparrowBuilds.server !== null) {
             lines.push(`server_sparrow_build = "${sparrowBuilds.server}"`)
+        }
+
+        if (nestsBuilds.merged !== null) {
+            lines.push(`nests_build = "${nestsBuilds.merged}"`)
+        }
+        if (nestsBuilds.client !== null) {
+            lines.push(`client_nests_build = "${nestsBuilds.client}"`)
+        }
+        if (nestsBuilds.server !== null) {
+            lines.push(`server_nests_build = "${nestsBuilds.server}"`)
+        }
+
+        if (featherBuilds.merged !== null) {
+            lines.push(`feather_build = "${featherBuilds.merged}"`)
+        }
+        if (featherBuilds.client !== null) {
+            lines.push(`client_feather_build = "${featherBuilds.client}"`)
+        }
+        if (featherBuilds.server !== null) {
+            lines.push(`server_feather_build = "${featherBuilds.server}"`)
         }
 
         lines.push(``);
@@ -719,7 +721,6 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                 lines.push("");
 
                 if (project == "client") {
-                    lines.push(`feather_build = ${featherBuilds.client}`);
                     if (ravenBuilds.client != null) {
                         lines.push(`raven_build = ${ravenBuilds.client}`);
                     }
@@ -729,9 +730,9 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                     if (nestsBuilds.client != null) {
                         lines.push(`nests_build = ${nestsBuilds.client}`);
                     }
+                    lines.push(`feather_build = ${featherBuilds.client}`);
                 }
                 if (project == "server") {
-                    lines.push(`feather_build = ${featherBuilds.server}`);
                     if (ravenBuilds.server != null) {
                         lines.push(`raven_build = ${ravenBuilds.server}`);
                     }
@@ -741,6 +742,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
                     if (nestsBuilds.server != null) {
                         lines.push(`nests_build = ${nestsBuilds.server}`);
                     }
+                    lines.push(`feather_build = ${featherBuilds.server}`);
                 }
             }
         }
