@@ -401,26 +401,23 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
             ]);
 
             plugins = [
-                "\t\tproject.apply plugin: 'java'"
+                "\tproject.apply plugin: 'java'"
             ];
 
             switch (modLoader) {
                 case "fabric":
-                    plugins.push(`\t\tproject.apply plugin: '${FABRIC_LOOM}'`);
+                    plugins.push(`\tproject.apply plugin: '${FABRIC_LOOM}'`);
                     break;
                 case "quilt":
-                    plugins.push(`\t\tproject.apply plugin: '${QUILT_LOOM}'`);
+                    plugins.push(`\tproject.apply plugin: '${QUILT_LOOM}'`);
                     break;
                 default:
                     throw new Error("unknown mod loader " + modLoader);
             }
 
-            plugins.push(`\t\tproject.apply plugin: '${PLOCEUS}'`);
+            plugins.push(`\tproject.apply plugin: '${PLOCEUS}'`);
 
             if (plugins) {
-                plugins.unshift("\tproject.plugins {");
-                plugins.push("\t}");
-
                 displayCodeBlockLines(elementId, plugins);
             }
 
