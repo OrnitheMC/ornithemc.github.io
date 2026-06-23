@@ -9,15 +9,18 @@ import Layout from "../layouts/Layout.astro";
         <!-- Familiar, eh? -wwp -->
         <h1>Feather - Build diff viewer</h1>
 
-        <h2>Latest versions</h2>
         <div class="flex flex-col gap-2 items-start">
-            <fieldset>
-                <input type="checkbox" id="allow-snapshots" />
-                <label for="allow-snapshots">Include Snapshots</label>
-            </fieldset>
-
+            <label for="mc-version">Select a Minecraft version</label>
+            <input type="text" id="mc-version" list="version-list" value="1.7.2" />
+            <datalist id="version-list">
+                <option value="1.7.2"></option>
+                <!-- DO NOT INSERT ANYTHING HERE -->
+                <!-- Data here will be inserted by JavaScript -->
+            </datalist>
+            
             <fieldset id="calamus-gen-selectors">
-                <legend>Select a Calamus (Intermediary) Generation</legend>
+                <legend>Select a Calamus (intermediary) generation</legend>
+
                 <input type="radio" id="generation-gen1" name="calamus-generation" checked />
                 <label for="generation-gen1">Gen1</label>
 
@@ -25,15 +28,20 @@ import Layout from "../layouts/Layout.astro";
                 <label for="generation-gen2">Gen2</label>
             </fieldset>
 
-            <label for="mc-version">Game version</label>
-            <input type="text" id="mc-version" list="version-list" value="1.7.2" />
-            <datalist id="version-list">
-                <option value="1.7.2"></option>
-                <!-- DO NOT INSERT ANYTHING HERE -->
-                <!-- Data here will be inserted by JavaScript -->
-            </datalist>
+            <fieldset id="game-side-selectors">
+                <legend>Select a game side</legend>
 
-            <h2>Builds:</h2>
+                <input type="radio" id="side-client" name="game-side" />
+                <label for="side-client">Client</label>
+
+                <input type="radio" id="side-server" name="game-side" />
+                <label for="side-server">Server</label>
+            </fieldset>
+
+            <div/>
+            <div/>
+
+            <h2>Mapping Selection:</h2>
             <div style="display: flex; gap: 5rem;">
                 <div style="display: flex; flex-direction: column;">
                     <label for="build-source">Source build</label>

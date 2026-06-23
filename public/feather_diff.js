@@ -3,50 +3,114 @@
 import {
   getFeatherBuildMaven,
   getFeatherVersionMeta,
-  getMinecraftStableVersions,
   getMinecraftVersions,
+  getVersionDetails
 } from "./meta_maven_utils.js";
 
 import * as tiny from "./tiny_mappings.js";
 
 (async () => {
-  const genSelectorRadios = {
-    gen1: document.getElementById("generation-gen1"),
-    gen2: document.getElementById("generation-gen2")
+  const minecraftVersionSelector = document.getElementById("mc-version");
+  const minecraftVersionList = document.getElementById("version-list");
+  const calamusGenSelector = document.getElementById("calamus-gen-selectors");
+  const calamusGenSelectorRadios = {
+      gen1: document.getElementById("generation-gen1"),
+      gen2: document.getElementById("generation-gen2")
+  }
+  const gameSideSelector = document.getElementById("game-side-selectors");
+  const gameSideSelectorRadios = {
+      client: document.getElementById("side-client"),
+      server: document.getElementById("side-server")
   }
 
-  const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
-  let minecraftStableVersions = await getMinecraftStableVersions(gen);
-  let minecraftAllVersions = await getMinecraftVersions(gen);
+  const sourceBuildSelector = document.getElementById("build-source");
+  const targetBuildSelector = document.getElementById("build-target");
+  const hidePackageToggle = document.getElementById("hide-package");
+  
+  const diffView = document.getElementById("diff-viewer");
 
-  let possibleVersions;
+  let minecraftVersions = [];
+  let selectedVersion = null;
 
-  const versionSelectorInput = document.getElementById("mc-version");
-  const versionListElement = document.getElementById("version-list");
-  const allowSnapshotsCheck = document.getElementById("allow-snapshots");
-  const featherGenSelector = document.getElementById("calamus-gen-selectors");
+  function selectedMinecraftVersion() {
+    return minecraftVersionSelector.value;
+  }
 
-  const buildSourceElement = document.getElementById("build-source");
-  const buildTargetElement = document.getElementById("build-target");
-  const diffViewerElement = document.getElementById("diff-viewer");
+  function selectedCalamusGeneration() {
+    return Object.entries(calamusGenSelectorRadios).find(([_, button]) => button.checked)[0];
+  }
 
-  const hidePackage = document.getElementById("hide-package");
+  function selectedGameSide() {
+    const selected = Object.entries(gameSideSelectorRadios).find(([_, button]) => button.checked);
+    return selected ? selected[0] : undefined;
+  }
+
+  function sourceFeatherBuild() {
+    return sourceBuildSelector.value;
+  }
+
+  function targetFeatherBuild() {
+    return targetBuildSelector.value;
+  }
+
+  function hidePackageName() {
+    return hidePackageToggle.checked;
+  }
+
+  function updateSelectedMinecraftVersion() {
+    const prevSelectedVersion = selectedVersion;
+    selectedVersion = selectedMinecraftVersion();
+
+    return selectedVersion != prevSelectedVersion;
+  }
+
+  async function updateGameSides() {
+    gameSideSelector.style.display = "none";
+
+    gameSideSelectorRadios.client.checked = false;
+    gameSideSelectorRadios.server.checked = false;
+
+    if (minecraftVersions.some((version) => selectedMinecraftVersion() === version)) {
+      const intermediaryGen = selectedCalamusGeneration();
+      const minecraftVersion = selectedMinecraftVersion();
+
+      if (intermediaryGen == "gen1") {
+        const versionDetails = await getVersionDetails(intermediaryGen, minecraftVersion);
+
+        if (!versionDetails.sharedMappings) {
+          gameSideSelector.style = "";
+          
+          gameSideSelectorRadios.client.disabled = !versionDetails.client;
+          gameSideSelectorRadios.server.disabled = !versionDetails.server;
+
+          // select client by default unless disabled
+          gameSideSelectorRadios.client.checked = versionDetails.client;
+          gameSideSelectorRadios.server.checked = !gameSideSelectorRadios.client.checked;
+        }
+      }
+    }
+  }
 
   async function updateFeatherBuilds() {
-    if (
-      possibleVersions.some((version) => versionSelectorInput.value === version)
-    ) {
-      const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
-      await getFeatherVersionMeta(gen, versionSelectorInput.value).then(
+    const intermediaryGen = selectedCalamusGeneration();
+    const minecraftVersion = selectedMinecraftVersion();
+
+    if (minecraftVersions.some((version) => minecraftVersion === version)) {
+      const gameSide = selectedGameSide();
+      const sidedMinecraftVersion = (gameSide == undefined)
+          ? minecraftVersion
+          : minecraftVersion + "-" + gameSide;
+
+      await getFeatherVersionMeta(intermediaryGen, sidedMinecraftVersion).then(
         (featherVersionMeta) => {
-          buildSourceElement.innerHTML = "";
-          buildTargetElement.innerHTML = "";
+          sourceBuildSelector.innerHTML = "";
+          targetBuildSelector.innerHTML = "";
           for (const featherVersion of featherVersionMeta) {
             const featherVersionElement = document.createElement("option");
             featherVersionElement.innerText = "Build " + featherVersion.build;
             featherVersionElement.value = featherVersion.version;
-            buildSourceElement.appendChild(featherVersionElement);
-            buildTargetElement.appendChild(
+            sourceBuildSelector.appendChild(featherVersionElement);
+            targetBuildSelector.appendChild(
               featherVersionElement.cloneNode(true),
             );
           }
@@ -54,16 +118,16 @@ import * as tiny from "./tiny_mappings.js";
       );
 
       // Hide the diff viewer bc the source and target builds are the same
-      diffViewerElement.style.display = "none";
+      diffView.style.display = "none";
     } else {
-      buildSourceElement.innerHTML = "";
-      buildTargetElement.innerHTML = "";
-      diffViewerElement.style.display = "none";
+      sourceBuildSelector.innerHTML = "";
+      targetBuildSelector.innerHTML = "";
+      diffView.style.display = "none";
     }
   }
 
   async function getTinyMappings(version) {
-    const gen = Object.entries(genSelectorRadios).find(([_, button]) => button.checked)[0];
+    const gen = selectedCalamusGeneration()
     let arrayBuf = await getFeatherBuildMaven(gen, version)
       .then((response) => response.blob()) // Get response as a Blob
       .then(async (blob) => {
@@ -94,18 +158,18 @@ import * as tiny from "./tiny_mappings.js";
     return tiny.parseTiny(file);
   }
 
-  async function updateFeatherDiff() {
-    const source = buildSourceElement.value;
-    const target = buildTargetElement.value;
+  async function updateDiffView() {
+    const source = sourceFeatherBuild();
+    const target = targetFeatherBuild();
 
     if (source === target) {
       console.log("Source and target builds are the same");
       // Hide the diff viewer
-      diffViewerElement.style.display = "none";
+      diffView.style.display = "none";
       return;
     }
     // Display the diff viewer
-    diffViewerElement.style.display = "inline";
+    diffView.style.display = "inline";
 
     const sourceMappings = await getTinyMappings(source);
     const targetMappings = await getTinyMappings(target);
@@ -114,7 +178,7 @@ import * as tiny from "./tiny_mappings.js";
   }
 
   function diffMappings(source, target) {
-    printDiff(diffMemberArray(source.classes, target, hidePackage.checked), "classes-diff")
+    printDiff(diffMemberArray(source.classes, target, hidePackageName()), "classes-diff")
     printDiff(diffMemberArray(source.methods, target), "methods-diff")
     printDiff(diffMemberArray(source.fields, target), "fields-diff")
   }
@@ -149,54 +213,51 @@ import * as tiny from "./tiny_mappings.js";
     return diff
   }
 
-  versionSelectorInput.addEventListener(
-    "input",
-    async (_) => await updateFeatherBuilds(),
-  );
-
-  allowSnapshotsCheck.addEventListener("change", (_) => {
-    updateVersionList();
-  });
-
-  featherGenSelector.addEventListener("change", async (e) => {
-    const gen = Object.entries(genSelectorRadios).find(([_, button]) => button === e.target)[0];
-    minecraftStableVersions = await getMinecraftStableVersions(gen);
-    minecraftAllVersions = await getMinecraftVersions(gen);
-
-    updateVersionList();
-    await updateFeatherBuilds();
-  })
-
-  buildSourceElement.addEventListener(
-    "change",
-    async (_) => await updateFeatherDiff(),
-  );
-
-  buildTargetElement.addEventListener(
-    "change",
-    async (_) => await updateFeatherDiff(),
-  );
-
-  hidePackage.addEventListener("change", async (_) => {
-    await updateFeatherDiff();
-  });
-
-  function updateVersionList() {
-    if (allowSnapshotsCheck.checked) {
-      possibleVersions = minecraftAllVersions;
-    } else {
-      possibleVersions = minecraftStableVersions;
+  minecraftVersionSelector.addEventListener("blur", async _ => {
+    if (updateSelectedMinecraftVersion()) {
+      await updateGameSides();
+      await updateFeatherBuilds();
     }
+  });
+  calamusGenSelector.addEventListener("change", async _ => {
+    await fetchVersions()
+    await updateVersionList();
+    
+    await updateGameSides();
+    await updateFeatherBuilds();
+  });
+  gameSideSelector.addEventListener("change", async _ => {
+    await updateFeatherBuilds();
+  });
 
-    while (versionListElement.firstChild)
-      versionListElement.removeChild(versionListElement.lastChild);
-    possibleVersions.forEach((e) => {
+  sourceBuildSelector.addEventListener("change", async _ => {
+    await updateDiffView();
+  });
+  targetBuildSelector.addEventListener("change", async _ => {
+    await updateDiffView();
+  });
+  hidePackageToggle.addEventListener("change", async (_) => {
+    await updateDiffView();
+  });
+
+  async function fetchVersions() {
+    const intermediaryGen = selectedCalamusGeneration();
+    minecraftVersions = await getMinecraftVersions(intermediaryGen);
+  }
+
+  async function updateVersionList() {
+    while (minecraftVersionList.firstChild) minecraftVersionList.removeChild(minecraftVersionList.lastChild);
+    minecraftVersions.forEach(e => {
       const opt = new Option();
       opt.value = e;
-      versionListElement.appendChild(opt);
+      minecraftVersionList.appendChild(opt);
     });
   }
 
-  updateVersionList();
+  // default mc version is 1.7.2 where this selector isn't needed
+  gameSideSelector.style.display = "none";
+
+  await fetchVersions();
+  await updateVersionList();
   await updateFeatherBuilds();
 })();
