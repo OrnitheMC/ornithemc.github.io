@@ -1,6 +1,8 @@
 // diffMappings, printDiff, diffMemberArray from https://github.com/modmuss50/YarnDiff/tree/master
 
 import {
+  getLatestIntermediaryGeneration,
+  getStableIntermediaryGeneration,
   getFeatherBuildMaven,
   getFeatherVersionMeta,
   getMinecraftVersions,
@@ -14,8 +16,7 @@ import * as tiny from "./tiny_mappings.js";
   const minecraftVersionList = document.getElementById("version-list");
   const calamusGenSelector = document.getElementById("calamus-gen-selectors");
   const calamusGenSelectorRadios = {
-      gen1: document.getElementById("generation-gen1"),
-      gen2: document.getElementById("generation-gen2")
+      // generated
   }
   const gameSideSelector = document.getElementById("game-side-selectors");
   const gameSideSelectorRadios = {
@@ -240,6 +241,25 @@ import * as tiny from "./tiny_mappings.js";
     await updateDiffView();
   });
 
+  async function init() {
+    calamusGenSelector.innerHTML = "";
+
+    const latestGen = await getLatestIntermediaryGeneration();
+    const stableGen = await getStableIntermediaryGeneration();
+
+    for (let gen = 1; gen <= latestGen; gen++) {
+      const intermediaryGen = "gen" + gen;
+      const intermediaryGenName = "Gen" + gen;
+      const buttonId = "generation-" + intermediaryGen;
+
+      calamusGenSelector.innerHTML += `
+          <input type="radio" id="${buttonId}" name="calamus-generation" ${gen == stableGen ? "checked" : ""}/>
+          <label for="${buttonId}">${intermediaryGenName}</label>
+      `;
+      calamusGenSelectorRadios[intermediaryGen] = document.getElementById(buttonId);
+    }
+  }
+
   async function fetchVersions() {
     const intermediaryGen = selectedCalamusGeneration();
     minecraftVersions = await getMinecraftVersions(intermediaryGen);
@@ -257,6 +277,7 @@ import * as tiny from "./tiny_mappings.js";
   // default mc version is 1.7.2 where this selector isn't needed
   gameSideSelector.style.display = "none";
 
+  await init();
   await fetchVersions();
   await updateVersionList();
   await updateFeatherBuilds();

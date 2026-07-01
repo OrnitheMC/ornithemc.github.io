@@ -1,4 +1,6 @@
 import {
+    getLatestIntermediaryGeneration,
+    getStableIntermediaryGeneration,
     getMinecraftVersions,
     getLatestLoaderVersion,
     getLatestOslVersion,
@@ -26,8 +28,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
     const minecraftVersionList = document.getElementById("version-list");
     const calamusGenSelector = document.getElementById("calamus-gen-selectors");
     const calamusGenSelectorRadios = {
-        gen1: document.getElementById("generation-gen1"),
-        gen2: document.getElementById("generation-gen2")
+        // generated
     }
     const modLoaderSelector = document.getElementById("mod-loader-selectors");
     const modLoaderSelectorRadios = {
@@ -868,6 +869,25 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         await updateDisplayedElements();
     });
 
+    async function init() {
+        calamusGenSelector.innerHTML = "";
+
+        const latestGen = await getLatestIntermediaryGeneration();
+        const stableGen = await getStableIntermediaryGeneration();
+
+        for (let gen = 1; gen <= latestGen; gen++) {
+            const intermediaryGen = "gen" + gen;
+            const intermediaryGenName = "Gen" + gen;
+            const buttonId = "generation-" + intermediaryGen;
+
+            calamusGenSelector.innerHTML += `
+                <input type="radio" id="${buttonId}" name="calamus-generation" ${gen == stableGen ? "checked" : ""}/>
+                <label for="${buttonId}">${intermediaryGenName}</label>
+            `;
+            calamusGenSelectorRadios[intermediaryGen] = document.getElementById(buttonId);
+        }
+    }
+
     async function fetchVersions() {
         const intermediaryGen = selectedCalamusGeneration();
         minecraftVersions = await getMinecraftVersions(intermediaryGen);
@@ -882,6 +902,7 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         });
     }
 
+    await init();
     await fetchVersions();
     await updateVersionList();
     await updateDisplayedElements();

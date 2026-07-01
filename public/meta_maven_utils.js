@@ -26,6 +26,10 @@ async function getVersionsWithGenFromMeta(intermediaryGen, ...pathComponents) {
     return response;
 }
 
+async function getIntermediaryGenerations() {
+    return await getVersionsFromMeta("intermediary_generations");
+}
+
 async function getMinecraftVersionsMeta(intermediaryGen) {
     return await getVersionsWithGenFromMeta(intermediaryGen, "game");
 }
@@ -69,6 +73,14 @@ function compareVersion(sv1, sv2) {
     }
 
     return rec(sv1.split("."), sv2.split("."));
+}
+
+export async function getLatestIntermediaryGeneration() {
+    return await getIntermediaryGenerations().then(v => v.latestIntermediaryGeneration);
+}
+
+export async function getStableIntermediaryGeneration() {
+    return await getIntermediaryGenerations().then(v => v.stableIntermediaryGeneration);
 }
 
 export async function getMinecraftVersions(intermediaryGen) {
@@ -183,21 +195,11 @@ function makeOrnitheMavenUrl(...pathComponents) {
 }
 
 export async function getFeatherBuildMaven(intermediaryGen, sidedMcVersion) {
-    let feather;
-    switch (intermediaryGen) {
-        case "gen1": {
-            feather = "feather";
-            break;
-        }
-        case "gen2": {
-            feather = "feather-gen2";
-            break;
-        }
-        default: {
-            throw new Error("Invalid generation: " + intermediaryGen);
-        }
+    let artifactName = "feather";
+    if (intermediaryGen != "gen1") {
+        artifactName += "-" + intermediaryGen;
     }
-    const url = makeOrnitheMavenUrl(feather, sidedMcVersion, feather + "-" + sidedMcVersion + "-tiny.gz");
+    const url = makeOrnitheMavenUrl(artifactName, sidedMcVersion, artifactName + "-" + sidedMcVersion + "-tiny.gz");
     return await fetch(url);
 }
 
