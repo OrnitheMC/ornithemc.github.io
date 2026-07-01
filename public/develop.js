@@ -854,21 +854,6 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
         elem.innerText = pre + lines.join("\n") + "\n" + suf;
     }
 
-    minecraftVersionSelector.addEventListener("blur", async _ => {
-        await updateDisplayedElements();
-    });
-    modLoaderSelector.addEventListener("change", async (e) => {
-        await updateDisplayedElements();
-    });
-    calamusGenSelector.addEventListener("change", async (e) => {
-        await fetchVersions();
-        await updateVersionList();
-        await updateDisplayedElements();
-    });
-    dependencyManagementSelector.addEventListener("change", async (e) => {
-        await updateDisplayedElements();
-    });
-
     async function init() {
         calamusGenSelector.innerHTML = "";
 
@@ -886,6 +871,21 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
             `;
             calamusGenSelectorRadios[intermediaryGen] = document.getElementById(buttonId);
         }
+
+        minecraftVersionSelector.addEventListener("blur", async _ => {
+            await updateDisplayedElements();
+        });
+        modLoaderSelector.addEventListener("change", async (e) => {
+            await updateDisplayedElements();
+        });
+        calamusGenSelector.addEventListener("change", async (e) => {
+            await fetchVersions();
+            await updateVersionList();
+            await updateDisplayedElements();
+        });
+        dependencyManagementSelector.addEventListener("change", async (e) => {
+            await updateDisplayedElements();
+        });
     }
 
     async function fetchVersions() {

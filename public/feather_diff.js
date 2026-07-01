@@ -214,33 +214,6 @@ import * as tiny from "./tiny_mappings.js";
     return diff
   }
 
-  minecraftVersionSelector.addEventListener("blur", async _ => {
-    if (updateSelectedMinecraftVersion()) {
-      await updateGameSides();
-      await updateFeatherBuilds();
-    }
-  });
-  calamusGenSelector.addEventListener("change", async _ => {
-    await fetchVersions()
-    await updateVersionList();
-    
-    await updateGameSides();
-    await updateFeatherBuilds();
-  });
-  gameSideSelector.addEventListener("change", async _ => {
-    await updateFeatherBuilds();
-  });
-
-  sourceBuildSelector.addEventListener("change", async _ => {
-    await updateDiffView();
-  });
-  targetBuildSelector.addEventListener("change", async _ => {
-    await updateDiffView();
-  });
-  hidePackageToggle.addEventListener("change", async (_) => {
-    await updateDiffView();
-  });
-
   async function init() {
     calamusGenSelector.innerHTML = "";
 
@@ -258,6 +231,36 @@ import * as tiny from "./tiny_mappings.js";
       `;
       calamusGenSelectorRadios[intermediaryGen] = document.getElementById(buttonId);
     }
+
+    minecraftVersionSelector.addEventListener("blur", async _ => {
+      if (updateSelectedMinecraftVersion()) {
+        await updateGameSides();
+        await updateFeatherBuilds();
+      }
+    });
+    calamusGenSelector.addEventListener("change", async _ => {
+      await fetchVersions()
+      await updateVersionList();
+      
+      await updateGameSides();
+      await updateFeatherBuilds();
+    });
+    gameSideSelector.addEventListener("change", async _ => {
+      await updateFeatherBuilds();
+    });
+
+    sourceBuildSelector.addEventListener("change", async _ => {
+      await updateDiffView();
+    });
+    targetBuildSelector.addEventListener("change", async _ => {
+      await updateDiffView();
+    });
+    hidePackageToggle.addEventListener("change", async (_) => {
+      await updateDiffView();
+    });
+
+    // default mc version is 1.7.2 where this selector isn't needed
+    gameSideSelector.style.display = "none";
   }
 
   async function fetchVersions() {
@@ -273,9 +276,6 @@ import * as tiny from "./tiny_mappings.js";
       minecraftVersionList.appendChild(opt);
     });
   }
-
-  // default mc version is 1.7.2 where this selector isn't needed
-  gameSideSelector.style.display = "none";
 
   await init();
   await fetchVersions();
