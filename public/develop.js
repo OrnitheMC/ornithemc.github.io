@@ -855,8 +855,6 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
     }
 
     async function init() {
-        calamusGenSelector.innerHTML = "";
-
         const latestGen = await getLatestIntermediaryGeneration();
         const stableGen = await getStableIntermediaryGeneration();
 
@@ -866,10 +864,20 @@ import { normalizeMinecraftVersion } from "./minecraft_semver.js";
             const buttonId = "generation-" + intermediaryGen;
 
             calamusGenSelector.innerHTML += `
-                <input type="radio" id="${buttonId}" name="calamus-generation" ${gen == stableGen ? "checked" : ""}/>
+                <input type="radio" id="${buttonId}" name="calamus-generation"/>
                 <label for="${buttonId}">${intermediaryGenName}</label>
             `;
+        }
+
+        for (let gen = 1; gen <= latestGen; gen++) {
+            const intermediaryGen = "gen" + gen;
+            const buttonId = "generation-" + intermediaryGen;
+
             calamusGenSelectorRadios[intermediaryGen] = document.getElementById(buttonId);
+
+            if (gen == stableGen) {
+                calamusGenSelectorRadios[intermediaryGen].checked = true;
+            }
         }
 
         minecraftVersionSelector.addEventListener("blur", async _ => {
