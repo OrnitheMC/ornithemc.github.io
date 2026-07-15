@@ -74,7 +74,7 @@
         if (platform.startsWith("windows")) {
             return "exe"
         }
-        return "bin"
+        return ""
     }
 
 })()
