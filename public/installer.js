@@ -23,6 +23,9 @@
     setLatestVersion("jar", jarVersion.version);
 
     async function getLatestVersion(platform, artifact) {
+        if (platform == "") {
+            return { "version": "Unsupported device" };
+        }
         const res = await fetch("https://maven.ornithemc.net/api/maven/latest/version/releases/net/ornithemc/" + artifact);
         return res.json();
     }
