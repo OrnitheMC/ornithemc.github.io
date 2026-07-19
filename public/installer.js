@@ -4,10 +4,12 @@
     let platform = getPlatform();
 
     if (platform != "") {
-        webInstallerDiv.innerHTML = "<a class=\"no-underline hover:underline\" style=\"display:inline-block\" href=\"/ornithe-installer-rs\">" +
-            "<div class=\"bg-ornithe-button-bg w-fit p-2 px-4\">Install From The Web</div>" +
-            "</a>";
-        webInstallerDiv.style = "";
+        if (webInstallerDiv != null) {
+          webInstallerDiv.innerHTML = "<a class=\"no-underline hover:underline\" style=\"display:inline-block\" href=\"/ornithe-installer-rs\">" +
+              "<div class=\"bg-ornithe-button-bg w-fit p-2 px-4\">Install From The Web</div>" +
+              "</a>";
+          webInstallerDiv.style = "";
+        }
 
         downloadDiv.innerHTML = "<a class=\"no-underline hover:underline\" style=\"display:inline-block\" href=\"https://maven.ornithemc.net/api/maven/latest/file/releases/net/ornithemc/ornithe-installer-rs/ornithe-installer-rs-" + platform + "?extension=" + getPlatformExtension(platform) + "\">" +
             "<div class=\"bg-ornithe-button-bg w-fit p-2 px-4\">Download native installer for " + getPlatformName(platform) + "</div>" +
@@ -28,8 +30,7 @@
     function setLatestVersion(sort, version) {
         let div = document.getElementById("latest-version-" + sort);
         if (div != null) {
-            div.style = "";
-            div.innerHTML = "Latest Installer Version: " + version;
+            div.innerHTML = version;
         }
     }
 
