@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import Button from "../components/Button.astro";
 ---
 
-<script type="module" src="/installer.js" defer></script>
+<script src="../scripts/installer.js"></script>
 
 <Layout title="Download - OrnitheMC">
   <main class="flex flex-col gap-4">
@@ -93,7 +93,7 @@ import Button from "../components/Button.astro";
       </div>
     </details>
     <h2>Java-based Installer</h2>
-    <div id="latest-version-jar" style="display: none;"></div>
+    <div>Latest Installer Version: <span id="latest-version-jar">loading...</span></div>
     <div class="flex flex-row flex-wrap gap-2">
       <Button
         title="Universal (JAR)"
