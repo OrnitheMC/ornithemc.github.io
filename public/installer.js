@@ -13,21 +13,24 @@
             "<div class=\"bg-ornithe-button-bg w-fit p-2 px-4\">Download native installer for " + getPlatformName(platform) + "</div>" +
             "</a>";
         downloadDiv.style = "";
+    } else {
+        // Fallback platform to check the version for
+        platform = "linux-x86_64";
     }
 
-    let nativeVersion = await getLatestVersion(platform, "ornithe-installer-rs/ornithe-installer-rs-" + platform + "?extension=" + getPlatformExtension(platform));
+    let nativeVersion = await getLatestVersion("ornithe-installer-rs/ornithe-installer-rs-" + platform + "?extension=" + getPlatformExtension(platform));
     setLatestVersion("native", nativeVersion.version);
-    let jarVersion = await getLatestVersion(platform, "ornithe-installer");
+    let jarVersion = await getLatestVersion("ornithe-installer");
     setLatestVersion("jar", jarVersion.version);
 
-    async function getLatestVersion(platform, artifact) {
+    async function getLatestVersion(artifact) {
         const res = await fetch("https://maven.ornithemc.net/api/maven/latest/version/releases/net/ornithemc/" + artifact);
         return res.json();
     }
 
     function setLatestVersion(sort, version) {
         let div = document.getElementById("latest-version-" + sort);
-        if (div != null) {
+        if (div != null && version != undefined) {
             div.style = "";
             div.innerHTML = "Latest Installer Version: " + version;
         }
@@ -41,7 +44,7 @@
             platform = navigator.platform;
         }
         if (platform.indexOf("Linux") != -1 || platform.indexOf("X11") != -1) {
-            if (platform.indexOf("aarch64") != -1) {
+            if (platform.indexOf("aarch64") != -1 || platform.indexOf("arm") != -1) {
                 return "linux-aarch64"
             }
             return "linux-x86_64";
